@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import ProductCard from '../components/ProductCard';
+import Cart from '../components/Cart';
 import axios from 'axios';
-import { Grid2, Container } from '@mui/material';
+import { Grid2, Container, CircularProgress, Box, Drawer } from '@mui/material';
 
-const Home = () => {
+const Home = ({ onAddToCart }) => {
   const [productos, setProductos] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [cartOpen, setCartOpen] = useState(false);
+  const [cartItems, setCartItems] = useState([]);
 
   useEffect(() => {
     const fetchProductos = async () => {
@@ -17,34 +21,48 @@ const Home = () => {
         }
       } catch (error) {
         console.error('Error de red o de API:', error);
+      } finally {
+        setLoading(false);
       }
     };
-  
+
     fetchProductos();
   }, []);
 
-  const handleAddToCart = (product) => {
-    console.log('Producto añadido:', product);
+  const toggleCart = () => {
+    setCartOpen(prev => !prev); // Toggle cart open/close
   };
 
   return (
-    <Container maxWidth="lg" style={{ padding: '20px 0' }}>
-      <Grid2 
-        container 
-        spacing={3} 
-        justifyContent="center"
-      >
-        {productos.map((producto) => (
-          <Grid2 
-            item 
-            key={producto.id} 
-            style={{ display: 'flex', justifyContent: 'center' }}
-          >
-            <ProductCard product={producto} onAddToCart={handleAddToCart} />
+    <>
+      <Container maxWidth="lg" style={{ padding: '20px 0' }}>
+        {loading ? (
+          <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
+            <CircularProgress />
+          </Box>
+        ) : (
+          <Grid2 container spacing={3} justifyContent="center">
+            {productos.map((producto) => (
+              <Grid2 
+                item 
+                xs={6} 
+                sm={4}  
+                md={3}  
+                key={producto.id} 
+                style={{ display: 'flex', justifyContent: 'center' }}
+              >
+                <ProductCard product={producto} onAddToCart={onAddToCart} />
+              </Grid2>
+            ))}
           </Grid2>
-        ))}
-      </Grid2>
-    </Container>
+        )}
+      </Container>
+
+      {/* Drawer for the cart */}
+      <Drawer anchor="right" open={cartOpen} onClose={toggleCart}>
+        <Cart cartItems={cartItems} onRemoveFromCart={(id) => setCartItems(cartItems.filter(item => item.id !== id))} />
+      </Drawer>
+    </>
   );
 };
 

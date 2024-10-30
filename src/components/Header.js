@@ -1,15 +1,27 @@
-import { Link } from 'react-router-dom';
-import { AppBar, Toolbar, Typography, Button } from '@mui/material';
+import React from 'react';
+import { AppBar, Toolbar, Typography, IconButton, Badge } from '@mui/material';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 
-const Header = () => (
-  <AppBar position="static">
-    <Toolbar>
-      <Typography variant="h6" sx={{ flexGrow: 1 }}>
-        Tienda
-      </Typography>
-      <Button color="inherit" component={Link} to="/cart">Carrito</Button>
-    </Toolbar>
-  </AppBar>
-);
+const Header = ({ cartCount, onOpenCart }) => {
+  return (
+    <AppBar position="static">
+      <Toolbar>
+        <Typography variant="h6" style={{ flexGrow: 1 }}>
+          Tienda
+        </Typography>
+        {/* IconButton para abrir el carrito con Badge */}
+        <IconButton 
+          color="inherit" 
+          onClick={onOpenCart} 
+          style={{ position: 'fixed', top: 20, right: 80, zIndex: 1000 }} // Asegura que esté delante
+        >
+          <Badge badgeContent={cartCount} color="secondary">
+            <ShoppingCartIcon />
+          </Badge>
+        </IconButton>
+      </Toolbar>
+    </AppBar>
+  );
+};
 
 export default Header;
