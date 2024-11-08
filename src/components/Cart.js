@@ -1,29 +1,114 @@
-import React from 'react';
-import { List, ListItem, ListItemText, IconButton, Typography } from '@mui/material';
-import { Delete as DeleteIcon } from '@mui/icons-material';
+import React, { useState, useEffect } from 'react';
+import { List, ListItem, ListItemText, IconButton, Typography, Divider, Box, Button, TextField } from '@mui/material';
+import { Delete as DeleteIcon, Add, Remove } from '@mui/icons-material';
 
-const Cart = ({ cartItems = [], onRemoveFromCart }) => { // Inicializa cartItems como un array vacío por defecto
+const Cart = ({ cartItems = [], onRemoveFromCart, onUpdateQuantity }) => {
+  const [total, setTotal] = useState(0);
+  const [discountCode, setDiscountCode] = useState('');
+  const [discount, setDiscount] = useState(0);
+
+  useEffect(() => {
+    const calculateTotal = () => {
+      const totalAmount = cartItems.reduce((acc, item) => acc + item.precio * item.quantity, 0);
+      const discountedTotal = totalAmount - totalAmount * discount;
+      setTotal(discountedTotal);
+    };
+    calculateTotal();
+  }, [cartItems, discount]);
+
+  const handleDiscountApply = () => {
+    if (discountCode === 'DESCUENTO10') {
+      setDiscount(0.1); // Descuento del 10%
+    } else {
+      setDiscount(0);
+    }
+  };
+
+  const handleEmptyCart = () => {
+    onRemoveFromCart('all'); // Vaciar el carrito
+  };
+
   return (
-    <div style={{ padding: '20px', width: '300px' }}>
-      <Typography variant="h6">Carrito de Compras</Typography>
+    <div style={{ padding: '20px', width: '350px', backgroundColor: '#fff', borderRadius: '8px', boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)' }}>
+      <Typography variant="h6" align="center" style={{ marginBottom: '20px' }}>TUS PRODUCTOS</Typography>
       <List>
         {cartItems.length > 0 ? (
           cartItems.map((item) => (
-            <ListItem 
-              key={item.id} 
-              secondaryAction={
-                <IconButton edge="end" onClick={() => onRemoveFromCart(item.id)}>
+            <ListItem key={`${item.id}-${item.talla}`} alignItems="flex-start">
+              <Box display="flex" alignItems="center" width="100%">
+                <Box component="img" 
+                     src={item.imagenUrl || 'ruta_a_imagen_placeholder.jpg'} 
+                     alt={item.nombre} 
+                     sx={{ width: 70, height: 70, marginRight: 1 }} />
+                <ListItemText
+                  primary={`${item.nombre} (Talla: ${item.talla ? item.talla : 'No disponible'})`}
+                  secondary={`Precio: $${item.precio}`} 
+                  sx={{ flexGrow: 1 }}
+                />
+
+                <IconButton edge="end" onClick={() => onRemoveFromCart(item.id, item.talla)}>
                   <DeleteIcon />
                 </IconButton>
-              }
-            >
-              <ListItemText primary={item.nombre} secondary={`Precio: $${item.precio}`} />
+              </Box>
+              <Box display="flex" alignItems="center" justifyContent="flex-start" mt={1} ml={2}>
+                <IconButton onClick={() => onUpdateQuantity(item.id, item.talla, -1)} disabled={item.quantity <= 1}>
+                  <Remove />
+                </IconButton>
+                <Typography variant="body2" style={{ margin: '0 8px' }}>{item.quantity}</Typography>
+                <IconButton onClick={() => onUpdateQuantity(item.id, item.talla, 1)}>
+                  <Add />
+                </IconButton>
+              </Box>
+              <Divider style={{ width: '100%', margin: '10px 0' }} />
             </ListItem>
           ))
         ) : (
           <Typography variant="body2">El carrito está vacío.</Typography>
         )}
       </List>
+      {cartItems.length > 0 && (
+        <>
+          <Divider style={{ margin: '10px 0' }} />
+          <Typography variant="h6" style={{ textAlign: 'right' }}>
+            Subtotal: ${total.toFixed(2)}
+          </Typography>
+          <Divider style={{ margin: '10px 0' }} />
+          <TextField 
+            variant="outlined" 
+            placeholder="Código exclusivo o tarjeta de descuento" 
+            value={discountCode} 
+            onChange={(e) => setDiscountCode(e.target.value)} 
+            fullWidth 
+            style={{ marginBottom: '10px' }} 
+          />
+          <Button 
+            variant="contained" 
+            color="primary" 
+            fullWidth 
+            onClick={handleDiscountApply}
+            disabled={!discountCode}
+          >
+            Aplicar
+          </Button>
+          <Button 
+            variant="outlined" 
+            color="error" 
+            fullWidth 
+            style={{ marginTop: '10px' }} 
+            onClick={handleEmptyCart}
+          >
+            Vaciar Carrito
+          </Button>
+          <Button 
+            variant="contained" 
+            color="secondary" 
+            fullWidth 
+            style={{ marginTop: '10px' }}
+          >
+            IR AL CHECKOUT
+          </Button>
+        </>
+      )}
     </div>
   );
 };
