@@ -1,25 +1,27 @@
 import React, { useState } from 'react';
-import { Card, CardContent, Typography, Button, Dialog, DialogTitle, DialogContent, DialogActions, Grid2 } from '@mui/material';
+import { Card, CardMedia, CardContent, Typography, Button, Dialog, DialogTitle, DialogContent, DialogActions, Grid } from '@mui/material';
 
 const ProductCard = ({ product, onAddToCart }) => {
   const [open, setOpen] = useState(false);
-  const [selectedSize, setSelectedSize] = useState(product?.tallas?.[0] || 'N/A'); // Predeterminar a la primera talla si existe
+  const [selectedSize, setSelectedSize] = useState(product?.tallas?.[0] || 'N/A'); // Talla predeterminada
 
-  const handleOpen = () => setOpen(true);
+  const handleOpen = () => {
+    setSelectedSize(product?.tallas?.[0] || 'N/A'); // Restablecer a la primera talla al abrir el modal
+    setOpen(true);
+  };
   const handleClose = () => setOpen(false);
 
   // Validar que se haya seleccionado una talla antes de añadir al carrito
   const handleAddToCart = () => {
     if (selectedSize) {
-      // Asegúrate de que el producto se esté pasando con la talla correctamente
+      // Incluir la talla seleccionada en el producto
       const productWithSize = { ...product, talla: selectedSize };
-      onAddToCart(productWithSize); // Pasar el producto con la talla seleccionada
+      onAddToCart(productWithSize, selectedSize); // Pasar el producto y la talla seleccionada
       handleClose(); // Cerrar el modal
     } else {
       alert('Por favor, selecciona una talla antes de añadir al carrito');
     }
   };
-  
 
   return (
     <>
@@ -27,26 +29,41 @@ const ProductCard = ({ product, onAddToCart }) => {
         onClick={handleOpen} 
         style={{ display: 'flex', flexDirection: 'column', height: '100%', position: 'relative', cursor: 'pointer' }}
       >
-        <div style={{ width: '100%', height: '200px', position: 'relative' }}>
-          {product.imagenes && product.imagenes.length > 0 ? (
-            <img 
-              src={product.imagenes[0]} 
-              alt={product.nombre} 
-              style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
-            />
-          ) : (
-            <Typography 
-              variant="body2" 
-              style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-            >
-              Imagen no disponible
-            </Typography>
-          )}
-        </div>
+        <CardMedia
+          component="img"
+          height="190"
+          image={product.imagenes && product.imagenes.length > 0 ? product.imagenes[0] : '/no-photo.jpg'}
+          alt="Imagen del producto"
+          onError={(e) => {
+            e.target.onerror = null;  // Previene bucles de error
+            e.target.src = '/no-photo.jpg';  // Fallback a la imagen por defecto
+          }}
+        />
 
-        <CardContent style={{ textAlign: 'center' }}>
-          <Typography variant="h6">{product.nombre}</Typography>
-          <Typography variant="h6" style={{ color: 'black' }}>${product.precio}</Typography>
+        <CardContent>
+          {/* Título del producto */}
+          <Typography 
+            gutterBottom 
+            variant="h5" 
+            component="div"
+            sx={{
+              fontWeight: 'bold',   // Negrita
+              fontFamily: 'Helvetica, Helvetica Neue, Arial, Lucida Grande, sans-serif',  // Fuente personalizada
+            }}
+          >
+            {product.nombre}
+          </Typography>
+
+          {/* Precio del producto */}
+          <Typography 
+            variant="h6" 
+            sx={{
+              fontWeight: 'bold',   // Negrita
+              fontFamily: 'Helvetica, Helvetica Neue, Arial, Lucida Grande, sans-serif',  // Fuente personalizada
+            }}
+          >
+            $ {product.precio}
+          </Typography>
         </CardContent>
       </Card>
 
@@ -54,26 +71,32 @@ const ProductCard = ({ product, onAddToCart }) => {
       <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
         <DialogTitle>{product.nombre}</DialogTitle>
         <DialogContent dividers>
-          <Grid2 container spacing={2}>
-            <Grid2 item xs={12} sm={6}>
-              {product.imagenes && product.imagenes.length > 0 ? (
-                <img 
-                  src={product.imagenes[0]} 
-                  alt={product.nombre} 
-                  style={{ width: '100%', objectFit: 'cover' }} 
-                />
-              ) : (
-                <Typography 
-                  variant="body2" 
-                  style={{ height: '200px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                >
-                  Imagen no disponible
-                </Typography>
-              )}
-            </Grid2>
-            <Grid2 item xs={12} sm={6}>
+          <Grid container spacing={1}>
+            <CardMedia
+              component="img"
+              height="100%"
+              image={product.imagenes && product.imagenes.length > 0 ? product.imagenes[0] : '/no-photo.jpg'}
+              alt="Imagen del producto"
+              onError={(e) => {
+                e.target.onerror = null;  // Previene bucles de error
+                e.target.src = '/no-photo.jpg';  // Fallback a la imagen por defecto
+              }}
+            />
+            <Grid item xs={12} sm={6}>
               <Typography variant="body2">{product.descripcion}</Typography>
-              <Typography variant="h6" style={{ marginTop: '16px', color: 'black' }}>${product.precio}</Typography>
+
+              {/* Precio del producto en el modal */}
+              <Typography 
+                variant="h6" 
+                style={{ marginTop: '16px', color: 'black' }}
+                sx={{
+                  fontWeight: 'bold',  // Negrita
+                  fontFamily: 'Helvetica, Helvetica Neue, Arial, Lucida Grande, sans-serif',  // Fuente personalizada
+                }}
+              >
+                $ {product.precio}
+              </Typography>
+
               <Typography variant="subtitle1" style={{ marginTop: '16px' }}>Selecciona una talla:</Typography>
               {/* Tamaños y botón para añadir al carrito */}
               <div>
@@ -88,12 +111,12 @@ const ProductCard = ({ product, onAddToCart }) => {
                   </Button>
                 ))}
               </div>
-            </Grid2>
-          </Grid2>
+            </Grid>
+          </Grid>
         </DialogContent>
         <DialogActions>
           <Button 
-            onClick={handleAddToCart} // Usar la nueva función que valida la talla seleccionada
+            onClick={handleAddToCart} // Usar la función que valida la talla seleccionada
             color="primary" 
             variant="contained"
           >

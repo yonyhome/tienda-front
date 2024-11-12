@@ -68,15 +68,15 @@ const Home = ({ onAddToCart }) => {
 
   return (
     <>
-      <Container maxWidth="lg" style={{ padding: '20px 0' }}>
+      <Container>
         {loading ? (
           <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
             <CircularProgress />
           </Box>
         ) : (
-          <Grid container spacing={3} justifyContent="center">
+          <Grid container spacing={2} justifyContent="center">
             {productos.map((producto) => (
-              <Grid item xs={6} sm={4} md={3} key={producto.id} style={{ display: 'flex', justifyContent: 'center' }}>
+              <Grid item xs={6} sm={4} md={3} key={producto.id} style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                 <ProductCard product={producto} onAddToCart={onAddToCart} onOpenDetails={handleOpenProductDetails} />
               </Grid>
             ))}

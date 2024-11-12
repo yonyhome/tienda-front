@@ -4,7 +4,7 @@ import Header from './components/Header';
 import Home from './pages/Home';
 import CheckoutPage from './pages/CheckoutPage';
 import Cart from './components/Cart';
-import { Drawer, Button } from '@mui/material';
+import { Drawer, IconButton, Badge, Box } from '@mui/material';
 
 function App() {
   const [cartOpen, setCartOpen] = useState(false);
@@ -35,7 +35,7 @@ function App() {
   };
 
   const handleAddToCart = (product, talla) => {
-    const productWithSize = { ...product, talla }; // Asegurarse de incluir talla correctamente
+    const productWithSize = { ...product, talla };
     setCartItems((prevItems) => {
       const existingItem = prevItems.find(
         (item) => item.id === productWithSize.id && item.talla === talla
@@ -53,26 +53,31 @@ function App() {
     });
   };
   
-  
-  
+  const getTotalItems = () => {
+    return cartItems.reduce((total, item) => total + item.quantity, 0);
+  };
 
   return (
     <Router>
-      <Header cartCount={cartItems.length} onOpenCart={handleOpenCart} />
-      <Routes>
-        <Route
-          path="/"
-          element={
-            <Home
-              onAddToCart={handleAddToCart}
-              cartItems={cartItems}
-              onUpdateQuantity={handleUpdateQuantity}
-              onRemoveFromCart={handleRemoveFromCart}
-            />
-          }
-        />
-        <Route path="/checkout" element={<CheckoutPage />} />
-      </Routes>
+      <Header />
+      
+      {/* Agregar margen superior equivalente a la altura máxima del Header */}
+      <Box sx={{ marginTop: { xs: '128px', sm: '128px', md: '60px' } }}>
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <Home
+                onAddToCart={handleAddToCart}
+                cartItems={cartItems}
+                onUpdateQuantity={handleUpdateQuantity}
+                onRemoveFromCart={handleRemoveFromCart}
+              />
+            }
+          />
+          <Route path="/checkout" element={<CheckoutPage />} />
+        </Routes>
+      </Box>
 
       {/* Drawer para el carrito */}
       <Drawer anchor="right" open={cartOpen} onClose={handleCloseCart}>
@@ -83,15 +88,21 @@ function App() {
         />
       </Drawer>
 
-      {/* Botón para abrir el carrito */}
-      <Button
-        variant="contained"
-        color="primary"
+      {/* Botón para abrir el carrito con el badge actualizado */}
+      <IconButton
+        color="inherit"
         onClick={handleOpenCart}
-        style={{ position: 'fixed', top: 20, right: 20 }}
+        style={{ position: 'fixed', top: 22, right: 30, zIndex: 1000 }}
       >
-        Carrito
-      </Button>
+        <Badge badgeContent={getTotalItems()} color="secondary">
+          <img 
+            src="/cart.png"  // Asegúrate de poner la ruta correcta de la imagen
+            alt="Cart" 
+            style={{ width: '50px', height: '50px', color: "white" }}  // Ajusta el tamaño de la imagen si es necesario
+          />
+        </Badge>
+      </IconButton>
+      
     </Router>
   );
 }

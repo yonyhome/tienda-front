@@ -9,8 +9,8 @@ const Cart = ({ cartItems = [], onRemoveFromCart, onUpdateQuantity }) => {
 
   useEffect(() => {
     const calculateTotal = () => {
-      const totalAmount = cartItems.reduce((acc, item) => acc + item.precio * item.quantity, 0);
-      const discountedTotal = totalAmount - totalAmount * discount;
+      const subtotal = cartItems.reduce((acc, item) => acc + item.precio * item.quantity, 0);
+      const discountedTotal = subtotal * (1 - discount);
       setTotal(discountedTotal);
     };
     calculateTotal();
@@ -20,12 +20,12 @@ const Cart = ({ cartItems = [], onRemoveFromCart, onUpdateQuantity }) => {
     if (discountCode === 'DESCUENTO10') {
       setDiscount(0.1); // Descuento del 10%
     } else {
-      setDiscount(0);
+      setDiscount(0); // Sin descuento si el código no es válido
     }
   };
 
   const handleEmptyCart = () => {
-    onRemoveFromCart('all'); // Vaciar el carrito
+    cartItems.forEach((item) => onRemoveFromCart(item.id, item.talla)); // Eliminar todos los productos
   };
 
   return (
@@ -45,7 +45,6 @@ const Cart = ({ cartItems = [], onRemoveFromCart, onUpdateQuantity }) => {
                   secondary={`Precio: $${item.precio}`} 
                   sx={{ flexGrow: 1 }}
                 />
-
                 <IconButton edge="end" onClick={() => onRemoveFromCart(item.id, item.talla)}>
                   <DeleteIcon />
                 </IconButton>
