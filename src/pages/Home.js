@@ -18,7 +18,7 @@ const Home = ({ onAddToCart }) => {
   useEffect(() => {
     const fetchProductos = async () => {
       try {
-        const response = await axios.get('https://script.google.com/macros/s/AKfycbyZrttp0G4aO6BuG8uNHYC3jtJfP-XgxAzc5Lt5dqaSYfVu1LVcj1CIGrKWY4BJP5VWcw/exec');
+        const response = await axios.get('https://script.google.com/macros/s/AKfycbwXIrpmadEGCiSQwVH8sO35OqQzFpotOohqZwdSDiScAIqITWVLjoxyl5cVZhg_ddjAuA/exec');
         if (response.data.result === 'success') {
           const productsWithImages = response.data.data.map(product => ({
             ...product,

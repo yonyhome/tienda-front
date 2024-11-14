@@ -2,21 +2,20 @@ import React, { useState } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Header from './components/Header';
 import Home from './pages/Home';
-import CheckoutPage from './pages/CheckoutPage';
 import Cart from './components/Cart';
-import { Drawer, IconButton, Badge, Box } from '@mui/material';
+import CheckoutForm from './components/CheckoutForm';
+import { Drawer, Dialog, DialogTitle, DialogContent, IconButton, Badge, Box } from '@mui/material';
 
 function App() {
   const [cartOpen, setCartOpen] = useState(false);
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [cartItems, setCartItems] = useState([]);
+  const SHIPPING_COST = 10000;
 
-  const handleOpenCart = () => {
-    setCartOpen(true);
-  };
-
-  const handleCloseCart = () => {
-    setCartOpen(false);
-  };
+  const handleOpenCart = () => setCartOpen(true);
+  const handleCloseCart = () => setCartOpen(false);
+  const handleOpenCheckout = () => setCheckoutOpen(true);
+  const handleCloseCheckout = () => setCheckoutOpen(false);
 
   const handleUpdateQuantity = (id, talla, increment) => {
     setCartItems((prevItems) =>
@@ -57,11 +56,16 @@ function App() {
     return cartItems.reduce((total, item) => total + item.quantity, 0);
   };
 
+  const calculateSubtotal = () => {
+    return cartItems.reduce((acc, item) => acc + item.precio * item.quantity, 0);
+  };
+
+  const subtotal = calculateSubtotal();
+
   return (
     <Router>
       <Header />
       
-      {/* Agregar margen superior equivalente a la altura máxima del Header */}
       <Box sx={{ marginTop: { xs: '128px', sm: '128px', md: '60px' } }}>
         <Routes>
           <Route
@@ -75,20 +79,25 @@ function App() {
               />
             }
           />
-          <Route path="/checkout" element={<CheckoutPage />} />
         </Routes>
       </Box>
 
-      {/* Drawer para el carrito */}
       <Drawer anchor="right" open={cartOpen} onClose={handleCloseCart}>
         <Cart
           cartItems={cartItems}
           onRemoveFromCart={handleRemoveFromCart}
           onUpdateQuantity={handleUpdateQuantity}
+          onCheckout={handleOpenCheckout}
         />
       </Drawer>
 
-      {/* Botón para abrir el carrito con el badge actualizado */}
+      <Dialog open={checkoutOpen} onClose={handleCloseCheckout} maxWidth="sm" fullWidth>
+        <DialogTitle>Finalizar Pedido</DialogTitle>
+        <DialogContent>
+          <CheckoutForm subtotal={subtotal} shippingCost={SHIPPING_COST} />
+        </DialogContent>
+      </Dialog>
+
       <IconButton
         color="inherit"
         onClick={handleOpenCart}
@@ -96,9 +105,9 @@ function App() {
       >
         <Badge badgeContent={getTotalItems()} color="secondary">
           <img 
-            src="/cart.png"  // Asegúrate de poner la ruta correcta de la imagen
+            src="/cart.png"
             alt="Cart" 
-            style={{ width: '50px', height: '50px', color: "white" }}  // Ajusta el tamaño de la imagen si es necesario
+            style={{ width: '50px', height: '50px', color: "white" }}
           />
         </Badge>
       </IconButton>

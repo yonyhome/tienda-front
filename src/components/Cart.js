@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { List, ListItem, ListItemText, IconButton, Typography, Divider, Box, Button, TextField } from '@mui/material';
+import { List, ListItem, ListItemText, IconButton, Typography, Divider, Box, Button, TextField, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
 import { Delete as DeleteIcon, Add, Remove } from '@mui/icons-material';
+import CheckoutForm from '../components/CheckoutForm'; // Asegúrate de que CheckoutForm esté disponible
 
 const Cart = ({ cartItems = [], onRemoveFromCart, onUpdateQuantity }) => {
   const [total, setTotal] = useState(0);
   const [discountCode, setDiscountCode] = useState('');
   const [discount, setDiscount] = useState(0);
+  const [openCheckoutDialog, setOpenCheckoutDialog] = useState(false); // Estado para controlar el cuadro de diálogo
+
+  const shippingCost = 10000; // Costo fijo de envío
 
   useEffect(() => {
     const calculateTotal = () => {
@@ -26,6 +30,14 @@ const Cart = ({ cartItems = [], onRemoveFromCart, onUpdateQuantity }) => {
 
   const handleEmptyCart = () => {
     cartItems.forEach((item) => onRemoveFromCart(item.id, item.talla)); // Eliminar todos los productos
+  };
+
+  const handleCheckoutDialogOpen = () => {
+    setOpenCheckoutDialog(true); // Abrir el cuadro de diálogo de checkout
+  };
+
+  const handleCheckoutDialogClose = () => {
+    setOpenCheckoutDialog(false); // Cerrar el cuadro de diálogo de checkout
   };
 
   return (
@@ -103,11 +115,25 @@ const Cart = ({ cartItems = [], onRemoveFromCart, onUpdateQuantity }) => {
             color="secondary" 
             fullWidth 
             style={{ marginTop: '10px' }}
+            onClick={handleCheckoutDialogOpen} // Llama a la función para abrir el cuadro de diálogo de checkout
           >
             IR AL CHECKOUT
           </Button>
         </>
       )}
+
+      {/* Cuadro de diálogo para el checkout */}
+      <Dialog open={openCheckoutDialog} onClose={handleCheckoutDialogClose}>
+        <DialogTitle>Finalizar Pedido</DialogTitle>
+        <DialogContent>
+          <CheckoutForm subtotal={total} shippingCost={shippingCost} /> {/* Pasamos el subtotal y el costo de envío como props */}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCheckoutDialogClose} color="primary">
+            Cancelar
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 };

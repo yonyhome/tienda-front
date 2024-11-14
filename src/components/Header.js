@@ -38,7 +38,7 @@ const Header = () => {
   // Detectar el desplazamiento de la página
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 40); // Cambia el valor según cuándo quieres que el tamaño cambie
+      setIsScrolled(window.scrollY > 20); // Cambia el valor según cuándo quieres que el tamaño cambie
     };
 
     window.addEventListener('scroll', handleScroll);
@@ -52,6 +52,7 @@ const Header = () => {
 
       <AppBar
         position="fixed"
+        style={{ paddingBottom: 20 }}
         sx={{
           backgroundColor: 'black', // Color negro para el AppBar
           boxShadow: 'none', // Quitar sombra
