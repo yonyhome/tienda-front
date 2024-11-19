@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Header from './components/Header';
 import Home from './pages/Home';
@@ -10,6 +10,7 @@ function App() {
   const [cartOpen, setCartOpen] = useState(false);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [cartItems, setCartItems] = useState([]);
+  const [headerHeight, setHeaderHeight] = useState(128); // Valor inicial (puedes ajustarlo)
   const SHIPPING_COST = 10000;
 
   const handleOpenCart = () => setCartOpen(true);
@@ -39,7 +40,7 @@ function App() {
       const existingItem = prevItems.find(
         (item) => item.id === productWithSize.id && item.talla === talla
       );
-  
+
       if (existingItem) {
         return prevItems.map((item) =>
           item.id === productWithSize.id && item.talla === talla
@@ -51,7 +52,7 @@ function App() {
       }
     });
   };
-  
+
   const getTotalItems = () => {
     return cartItems.reduce((total, item) => total + item.quantity, 0);
   };
@@ -62,11 +63,21 @@ function App() {
 
   const subtotal = calculateSubtotal();
 
+  useEffect(() => {
+    // Aquí podemos manejar el cambio de altura del header al hacer scroll
+    const handleScroll = () => {
+      setHeaderHeight(window.scrollY > 20 ? 60 : 128); // Cambia la altura según el scroll
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   return (
     <Router>
       <Header />
       
-      <Box sx={{ marginTop: { xs: '128px', sm: '128px', md: '60px' } }}>
+      <Box sx={{ marginTop: `${headerHeight}px` }}> {/* Aplica el margen dinámico */}
         <Routes>
           <Route
             path="/"

@@ -18,7 +18,7 @@ const Home = ({ onAddToCart }) => {
   useEffect(() => {
     const fetchProductos = async () => {
       try {
-        const response = await axios.get('https://script.google.com/macros/s/AKfycbwXIrpmadEGCiSQwVH8sO35OqQzFpotOohqZwdSDiScAIqITWVLjoxyl5cVZhg_ddjAuA/exec');
+        const response = await axios.get('https://script.google.com/macros/s/AKfycbyM8YkBWIAJIEfcPtnkY8DdnQPa-olx8AtIoQlDC41ps-RmGXu7gHxbDylHiy65KNBboA/exec');
         if (response.data.result === 'success') {
           const productsWithImages = response.data.data.map(product => ({
             ...product,
@@ -74,6 +74,7 @@ const Home = ({ onAddToCart }) => {
             <CircularProgress />
           </Box>
         ) : (
+          
           <Grid container spacing={2} justifyContent="center">
             {productos.map((producto) => (
               <Grid item xs={6} sm={4} md={3} key={producto.id} style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>

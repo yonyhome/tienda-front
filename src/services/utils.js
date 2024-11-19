@@ -22,7 +22,7 @@ export const calcularTotal = (productos) => {
   // Función para enviar el pedido a Google Sheets mediante un POST request
   export const registrarPedido = async (pedidoData) => {
     try {
-      const response = await fetch('https://script.google.com/macros/s/AKfycbwXIrpmadEGCiSQwVH8sO35OqQzFpotOohqZwdSDiScAIqITWVLjoxyl5cVZhg_ddjAuA/exec', {
+      const response = await fetch('https://script.google.com/macros/s/AKfycbyM8YkBWIAJIEfcPtnkY8DdnQPa-olx8AtIoQlDC41ps-RmGXu7gHxbDylHiy65KNBboA/exec', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
