@@ -1,15 +1,14 @@
 import React, { useState } from 'react';
 import { TextField, Button, Box, Typography, Divider, CircularProgress } from '@mui/material';
-import { Person, Email, LocationOn, Phone } from '@mui/icons-material'; // Iconos utilizados
-import { motion } from 'framer-motion'; // Asegúrate de que framer-motion esté instalado
-import { registrarPedido } from '../services/utils'; // Importa la función de registro de pedido
+import { motion } from 'framer-motion';
+import { registrarPedido } from '../services/utils';
 
-const CheckoutForm = ({ subtotal, shippingCost }) => {
+const CheckoutForm = ({ subtotal, shippingCost, cartItems, onCloseDialog, setSnackbarOpen, onEmptyCart, onCloseCart }) => {
   const [formData, setFormData] = useState({
     firstName: '',
     address: '',
     email: '',
-    phoneNumber: ''
+    phoneNumber: '',
   });
   const [loading, setLoading] = useState(false);
 
@@ -17,15 +16,14 @@ const CheckoutForm = ({ subtotal, shippingCost }) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
       ...prevData,
-      [name]: value
+      [name]: value,
     }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true); // Activamos el estado de carga
+    setLoading(true);
 
-    // Crea un objeto con los datos del pedido
     const orderData = {
       nombre: formData.firstName,
       telefono: formData.phoneNumber,
@@ -35,18 +33,41 @@ const CheckoutForm = ({ subtotal, shippingCost }) => {
       shippingCost: shippingCost,
       total: subtotal + shippingCost,
       fecha: new Date().toLocaleString(),
+      productos: cartItems.map((producto) => ({
+        ...producto,
+        cantidad: producto.quantity,
+      })),
     };
 
-    // Llama a la función para registrar el pedido
-    const isOrderRegistered = await registrarPedido(orderData);
+    try {
+      const isOrderRegistered = await registrarPedido(orderData);
 
-    setLoading(false);
+      if (isOrderRegistered) {
+        // Mostrar mensaje de éxito
+        setSnackbarOpen({
+          open: true,
+          message: '¡Pedido realizado con éxito! Muy pronto nos contactaremos por WhatsApp para confirmarlo.',
+          severity: 'success',
+        });
 
-    if (isOrderRegistered) {
-      console.log('Pedido enviado:', orderData);
-      alert('¡Pedido realizado con éxito! Te contactaremos pronto para confirmar.');
-    } else {
-      alert('Hubo un error al realizar el pedido. Por favor, inténtalo nuevamente.');
+        // Vaciar el carrito y cerrar el diálogo
+        onEmptyCart();
+        onCloseDialog();
+      } else {
+        setSnackbarOpen({
+          open: true,
+          message: 'Hubo un error al realizar el pedido. Por favor, inténtalo nuevamente.',
+          severity: 'error',
+        });
+      }
+    } catch (error) {
+      setSnackbarOpen({
+        open: true,
+        message: 'Ocurrió un error inesperado. Por favor, inténtalo más tarde.',
+        severity: 'error',
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -58,39 +79,13 @@ const CheckoutForm = ({ subtotal, shippingCost }) => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
     >
-      <Box
-        component="form"
-        onSubmit={handleSubmit}
-        sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 2,
-          padding: 3,
-          backgroundColor: '#f9f9f9',
-          borderRadius: 2,
-          boxShadow: 3,
-          transition: 'transform 0.3s ease',
-          '&:hover': {
-            transform: 'scale(1.02)'
-          }
-        }}
-      >
-        <Typography variant="h6" color="primary" sx={{ mb: 2, textAlign: 'center' }}>
-          ¡Finaliza tu Pedido!
-        </Typography>
-
+      <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2, padding: 3 }}>
         <TextField
           label="Nombre"
           name="firstName"
           value={formData.firstName}
           onChange={handleChange}
           required
-          sx={{ '& .MuiInputBase-root': { backgroundColor: '#fff' } }}
-          InputProps={{
-            startAdornment: (
-              <Person sx={{ color: 'primary.main', marginRight: 1 }} />
-            )
-          }}
         />
         <TextField
           label="Dirección"
@@ -98,40 +93,20 @@ const CheckoutForm = ({ subtotal, shippingCost }) => {
           value={formData.address}
           onChange={handleChange}
           required
-          sx={{ '& .MuiInputBase-root': { backgroundColor: '#fff' } }}
-          InputProps={{
-            startAdornment: (
-              <LocationOn sx={{ color: 'primary.main', marginRight: 1 }} />
-            )
-          }}
         />
         <TextField
           label="Correo Electrónico"
           name="email"
-          type="email"
           value={formData.email}
           onChange={handleChange}
           required
-          sx={{ '& .MuiInputBase-root': { backgroundColor: '#fff' } }}
-          InputProps={{
-            startAdornment: (
-              <Email sx={{ color: 'primary.main', marginRight: 1 }} />
-            )
-          }}
         />
         <TextField
           label="Número Telefónico"
           name="phoneNumber"
-          type="tel"
           value={formData.phoneNumber}
           onChange={handleChange}
           required
-          sx={{ '& .MuiInputBase-root': { backgroundColor: '#fff' } }}
-          InputProps={{
-            startAdornment: (
-              <Phone sx={{ color: 'primary.main', marginRight: 1 }} />
-            )
-          }}
         />
 
         <Divider sx={{ my: 2 }} />
@@ -140,41 +115,9 @@ const CheckoutForm = ({ subtotal, shippingCost }) => {
         <Typography variant="body1">Envío: ${shippingCost.toFixed(2)}</Typography>
         <Typography variant="h6">Total: ${total.toFixed(2)}</Typography>
 
-        <Button
-          type="submit"
-          variant="contained"
-          color="primary"
-          fullWidth
-          sx={{
-            mt: 2,
-            padding: '12px',
-            borderRadius: 3,
-            '&:hover': { backgroundColor: '#005BB5' }
-          }}
-        >
-          {loading ? (
-            <CircularProgress size={24} color="inherit" />
-          ) : (
-            'Realizar Pedido'
-          )}
+        <Button type="submit" variant="contained" color="primary" fullWidth sx={{ mt: 2 }}>
+          {loading ? <CircularProgress size={24} color="inherit" /> : 'Realizar Pedido'}
         </Button>
-
-        {loading && (
-          <Typography variant="body2" color="textSecondary" align="center" sx={{ mt: 2 }}>
-            Estamos procesando tu pedido...
-          </Typography>
-        )}
-
-        {!loading && (
-          <Typography
-            variant="body2"
-            color="textSecondary"
-            align="center"
-            sx={{ mt: 2, fontStyle: 'italic' }}
-          >
-            Te contactaremos para confirmar tu pedido y coordinar el envío.
-          </Typography>
-        )}
       </Box>
     </motion.div>
   );

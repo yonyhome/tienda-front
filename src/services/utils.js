@@ -19,25 +19,40 @@ export const calcularTotal = (productos) => {
     };
   };
   
-  // Función para enviar el pedido a Google Sheets mediante un POST request
-  export const registrarPedido = async (pedidoData) => {
-    try {
-      const response = await fetch('https://script.google.com/macros/s/AKfycbyM8YkBWIAJIEfcPtnkY8DdnQPa-olx8AtIoQlDC41ps-RmGXu7gHxbDylHiy65KNBboA/exec', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(pedidoData),
-      });
-  
-      const data = await response.json();
-      if (data.result === 'success') {
-        console.log('Pedido registrado correctamente:', data);
-      } else {
-        throw new Error('Error al registrar el pedido');
-      }
-    } catch (error) {
-      console.error('Error en el registro del pedido:', error);
+// Función para registrar un pedido enviándolo al endpoint de Google Apps Script
+export const registrarPedido = async (pedidoData) => {
+  try {
+    // Realizar la solicitud POST al endpoint
+    const response = await fetch('https://script.google.com/macros/s/AKfycbw-MZrNaZp7AM9_LUwiO6bKv-9bnt5rIRHfZku8oeG4gOoZYWn1Jh3S_zpWQdRzFTdLBg/exec', {
+      method: 'POST', // Método POST para enviar datos
+      redirect: "follow", // Manejar posibles redirecciones automáticamente
+      headers: {
+        "Content-Type": "text/plain;charset=utf-8", // Configuración para evitar solicitud preflight
+      },
+      body: JSON.stringify(pedidoData), // Convertir el objeto del pedido a JSON
+    });
+
+    // Verificar si la respuesta fue exitosa
+    if (!response.ok) {
+      throw new Error(`Error en la respuesta: ${response.status} ${response.statusText}`);
     }
-  };
+
+    // Leer la respuesta como texto
+    const data = await response.text(); // Leer la respuesta como texto
+
+    // Mostrar el mensaje de éxito o error basado en el texto
+    if (data === "Pedido registrado con éxito") {
+      console.log("Pedido registrado correctamente.");
+      return true; // Indicar que el pedido fue registrado exitosamente
+    } else {
+      throw new Error(data || "Error al registrar el pedido");
+    }
+  } catch (error) {
+    console.error("Error en el registro del pedido:", error);
+    throw error; // Re-lanzar el error para manejo adicional
+  }
+};
+
+  
+  
   

@@ -18,15 +18,16 @@ const Home = ({ onAddToCart }) => {
   useEffect(() => {
     const fetchProductos = async () => {
       try {
-        const response = await axios.get('https://script.google.com/macros/s/AKfycbyM8YkBWIAJIEfcPtnkY8DdnQPa-olx8AtIoQlDC41ps-RmGXu7gHxbDylHiy65KNBboA/exec');
-        if (response.data.result === 'success') {
+        const response = await axios.get('https://script.google.com/macros/s/AKfycbw-MZrNaZp7AM9_LUwiO6bKv-9bnt5rIRHfZku8oeG4gOoZYWn1Jh3S_zpWQdRzFTdLBg/exec');
+        if (response.data.status === 'success') {
+          console.log("entra en el success")
           const productsWithImages = response.data.data.map(product => ({
             ...product,
             imagenUrl: product.imagenes[0] || 'ruta_a_imagen_placeholder.jpg'
           }));
           setProductos(productsWithImages);
         } else {
-          console.error('Error al obtener productos:', response.data.message);
+          console.error('Error al obtener productos:', response.data);
         }
       } catch (error) {
         console.error('Error de red o de API:', error);

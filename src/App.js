@@ -3,20 +3,15 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Header from './components/Header';
 import Home from './pages/Home';
 import Cart from './components/Cart';
-import CheckoutForm from './components/CheckoutForm';
-import { Drawer, Dialog, DialogTitle, DialogContent, IconButton, Badge, Box } from '@mui/material';
+import { Drawer, IconButton, Badge, Box } from '@mui/material';
 
 function App() {
   const [cartOpen, setCartOpen] = useState(false);
-  const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [cartItems, setCartItems] = useState([]);
   const [headerHeight, setHeaderHeight] = useState(128); // Valor inicial (puedes ajustarlo)
-  const SHIPPING_COST = 10000;
 
   const handleOpenCart = () => setCartOpen(true);
   const handleCloseCart = () => setCartOpen(false);
-  const handleOpenCheckout = () => setCheckoutOpen(true);
-  const handleCloseCheckout = () => setCheckoutOpen(false);
 
   const handleUpdateQuantity = (id, talla, increment) => {
     setCartItems((prevItems) =>
@@ -53,18 +48,16 @@ function App() {
     });
   };
 
+  const handleEmptyCart = () => {
+    setCartItems([]);
+  };
+
   const getTotalItems = () => {
     return cartItems.reduce((total, item) => total + item.quantity, 0);
   };
 
-  const calculateSubtotal = () => {
-    return cartItems.reduce((acc, item) => acc + item.precio * item.quantity, 0);
-  };
-
-  const subtotal = calculateSubtotal();
-
   useEffect(() => {
-    // Aquí podemos manejar el cambio de altura del header al hacer scroll
+    // Manejo del cambio de altura del header al hacer scroll
     const handleScroll = () => {
       setHeaderHeight(window.scrollY > 20 ? 60 : 128); // Cambia la altura según el scroll
     };
@@ -76,8 +69,7 @@ function App() {
   return (
     <Router>
       <Header />
-      
-      <Box sx={{ marginTop: `${headerHeight}px` }}> {/* Aplica el margen dinámico */}
+      <Box sx={{ marginTop: `${headerHeight}px` }}>
         <Routes>
           <Route
             path="/"
@@ -98,16 +90,10 @@ function App() {
           cartItems={cartItems}
           onRemoveFromCart={handleRemoveFromCart}
           onUpdateQuantity={handleUpdateQuantity}
-          onCheckout={handleOpenCheckout}
+          onEmptyCart={handleEmptyCart}
+          onCloseCart={handleCloseCart}
         />
       </Drawer>
-
-      <Dialog open={checkoutOpen} onClose={handleCloseCheckout} maxWidth="sm" fullWidth>
-        <DialogTitle>Finalizar Pedido</DialogTitle>
-        <DialogContent>
-          <CheckoutForm subtotal={subtotal} shippingCost={SHIPPING_COST} />
-        </DialogContent>
-      </Dialog>
 
       <IconButton
         color="inherit"
@@ -115,14 +101,13 @@ function App() {
         style={{ position: 'fixed', top: 22, right: 30, zIndex: 1000 }}
       >
         <Badge badgeContent={getTotalItems()} color="secondary">
-          <img 
+          <img
             src="/cart.png"
-            alt="Cart" 
-            style={{ width: '50px', height: '50px', color: "white" }}
+            alt="Cart"
+            style={{ width: '50px', height: '50px', color: 'white' }}
           />
         </Badge>
       </IconButton>
-      
     </Router>
   );
 }
