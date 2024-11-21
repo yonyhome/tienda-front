@@ -10,40 +10,28 @@ import {
   Button,
   TextField,
   Dialog,
-  DialogActions,
-  DialogContent,
   DialogTitle,
-  Snackbar,
-  Alert,
+  DialogContent,
 } from '@mui/material';
 import { Delete as DeleteIcon, Add, Remove } from '@mui/icons-material';
 import CheckoutForm from '../components/CheckoutForm';
+import { applyDiscount, calculateTotal } from '../services/utils';
 
-const Cart = ({ cartItems = [], onRemoveFromCart, onUpdateQuantity, onEmptyCart, onCloseCart }) => {
+const Cart = ({ cartItems = [], onRemoveFromCart, onUpdateQuantity, onEmptyCart, setSnackbar }) => {
   const [total, setTotal] = useState(0);
   const [discountCode, setDiscountCode] = useState('');
   const [discount, setDiscount] = useState(0);
   const [openCheckoutDialog, setOpenCheckoutDialog] = useState(false);
-  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
   const shippingCost = 10000;
 
   useEffect(() => {
-    const calculateTotal = () => {
-      const subtotal = cartItems.reduce((acc, item) => acc + item.precio * item.quantity, 0);
-      const discountedTotal = subtotal * (1 - discount);
-      setTotal(discountedTotal);
-    };
-    calculateTotal();
+    setTotal(calculateTotal(cartItems, discount));
   }, [cartItems, discount]);
 
   const handleDiscountApply = () => {
-    if (discountCode === 'DESCUENTO10') {
-      setDiscount(0.1);
-      setSnackbar({ open: true, message: '¡Descuento aplicado correctamente!', severity: 'success' });
-    } else {
-      setDiscount(0);
-      setSnackbar({ open: true, message: 'Código inválido. Intenta nuevamente.', severity: 'error' });
-    }
+    const { discount, message, severity } = applyDiscount(discountCode);
+    setDiscount(discount);
+    setSnackbar(message, severity); // Usar la función global para mostrar el mensaje
   };
 
   const handleCheckoutDialogOpen = () => {
@@ -54,12 +42,8 @@ const Cart = ({ cartItems = [], onRemoveFromCart, onUpdateQuantity, onEmptyCart,
     setOpenCheckoutDialog(false);
   };
 
-  const handleSnackbarClose = () => {
-    setSnackbar({ ...snackbar, open: false });
-  };
-
   return (
-    <div style={{ padding: '20px', width: '350px', backgroundColor: '#fff', borderRadius: '8px', boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)' }}>
+    <div style={{ padding: '20px', height: "100%", width: '350px', backgroundColor: '#fff', borderRadius: '8px', boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)' }}>
       <Typography variant="h6" align="center" style={{ marginBottom: '20px' }}>
         TUS PRODUCTOS
       </Typography>
@@ -98,7 +82,7 @@ const Cart = ({ cartItems = [], onRemoveFromCart, onUpdateQuantity, onEmptyCart,
             </ListItem>
           ))
         ) : (
-          <Typography variant="body2">El carrito está vacío.</Typography>
+          <Typography style={{alignContent:"center", }} variant="body2">El carrito está vacío.</Typography>
         )}
       </List>
       {cartItems.length > 0 && (
@@ -128,34 +112,21 @@ const Cart = ({ cartItems = [], onRemoveFromCart, onUpdateQuantity, onEmptyCart,
         </>
       )}
 
-      {/* Cuadro de diálogo para el checkout */}
       <Dialog open={openCheckoutDialog} onClose={handleCheckoutDialogClose}>
         <DialogTitle>Finalizar Pedido</DialogTitle>
         <DialogContent>
-          <CheckoutForm
-            subtotal={total}
-            shippingCost={shippingCost}
-            cartItems={cartItems}
-            onCloseDialog={handleCheckoutDialogClose}
-            setSnackbarOpen={setSnackbar}
-            onEmptyCart={ onEmptyCart}
-            onCloseCart = { onCloseCart }
-          />
+        <CheckoutForm
+          subtotal={total}
+          shippingCost={shippingCost}
+          cartItems={cartItems}
+          onCloseDialog={handleCheckoutDialogClose}
+          showSnackbar={({ message, severity }) =>
+            setSnackbar( message, severity )
+          } // Aquí ajustamos para asegurarnos de que solo se envía el mensaje y severidad.
+          onEmptyCart={onEmptyCart}
+        />
         </DialogContent>
       </Dialog>
-
-      {/* Snackbar para mostrar mensajes de éxito o error */}
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={6000}
-        onClose={handleSnackbarClose}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      >
-        <Alert onClose={handleSnackbarClose} severity={snackbar.severity} sx={{ width: '100%' }}>
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
-      
     </div>
   );
 };

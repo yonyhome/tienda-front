@@ -3,7 +3,7 @@ import { TextField, Button, Box, Typography, Divider, CircularProgress } from '@
 import { motion } from 'framer-motion';
 import { registrarPedido } from '../services/utils';
 
-const CheckoutForm = ({ subtotal, shippingCost, cartItems, onCloseDialog, setSnackbarOpen, onEmptyCart, onCloseCart }) => {
+const CheckoutForm = ({ subtotal, shippingCost, cartItems, onCloseDialog, showSnackbar, onEmptyCart }) => {
   const [formData, setFormData] = useState({
     firstName: '',
     address: '',
@@ -44,25 +44,23 @@ const CheckoutForm = ({ subtotal, shippingCost, cartItems, onCloseDialog, setSna
 
       if (isOrderRegistered) {
         // Mostrar mensaje de éxito
-        setSnackbarOpen({
-          open: true,
+        showSnackbar({
           message: '¡Pedido realizado con éxito! Muy pronto nos contactaremos por WhatsApp para confirmarlo.',
           severity: 'success',
         });
-
+        
         // Vaciar el carrito y cerrar el diálogo
         onEmptyCart();
         onCloseDialog();
       } else {
-        setSnackbarOpen({
-          open: true,
+        showSnackbar({
           message: 'Hubo un error al realizar el pedido. Por favor, inténtalo nuevamente.',
           severity: 'error',
         });
+        
       }
     } catch (error) {
-      setSnackbarOpen({
-        open: true,
+      showSnackbar({
         message: 'Ocurrió un error inesperado. Por favor, inténtalo más tarde.',
         severity: 'error',
       });

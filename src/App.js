@@ -3,63 +3,57 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Header from './components/Header';
 import Home from './pages/Home';
 import Cart from './components/Cart';
+import WhatsAppButton from './components/WhatsappButton';
 import { Drawer, IconButton, Badge, Box } from '@mui/material';
+import { Snackbar, Alert } from '@mui/material';
+import {
+  addToCart,
+  removeFromCart,
+  updateCartQuantity,
+  emptyCart,
+  getTotalItems,
+} from './services/utils';
 
 function App() {
   const [cartOpen, setCartOpen] = useState(false);
   const [cartItems, setCartItems] = useState([]);
-  const [headerHeight, setHeaderHeight] = useState(128); // Valor inicial (puedes ajustarlo)
+  const [headerHeight, setHeaderHeight] = useState(128); // Valor inicial
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: '',
+    severity: 'success',
+  });
 
+  const showSnackbar = (message, severity = 'success') => {
+    setSnackbar({ open: true, message, severity });
+  };
+
+  const handleSnackbarClose = () => {
+    setSnackbar({ ...snackbar, open: false });
+  };
   const handleOpenCart = () => setCartOpen(true);
   const handleCloseCart = () => setCartOpen(false);
 
-  const handleUpdateQuantity = (id, talla, increment) => {
-    setCartItems((prevItems) =>
-      prevItems.map((item) =>
-        item.id === id && item.talla === talla
-          ? { ...item, quantity: Math.max(item.quantity + increment, 1) }
-          : item
-      )
-    );
+  const handleAddToCart = (product, talla) => {
+    setCartItems((prevItems) => addToCart(prevItems, product, talla));
   };
 
   const handleRemoveFromCart = (id, talla) => {
-    setCartItems((prevItems) =>
-      prevItems.filter((item) => !(item.id === id && item.talla === talla))
-    );
+    setCartItems((prevItems) => removeFromCart(prevItems, id, talla));
   };
 
-  const handleAddToCart = (product, talla) => {
-    const productWithSize = { ...product, talla };
-    setCartItems((prevItems) => {
-      const existingItem = prevItems.find(
-        (item) => item.id === productWithSize.id && item.talla === talla
-      );
-
-      if (existingItem) {
-        return prevItems.map((item) =>
-          item.id === productWithSize.id && item.talla === talla
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
-        );
-      } else {
-        return [...prevItems, { ...productWithSize, quantity: 1 }];
-      }
-    });
+  const handleUpdateQuantity = (id, talla, increment) => {
+    setCartItems((prevItems) => updateCartQuantity(prevItems, id, talla, increment));
   };
 
   const handleEmptyCart = () => {
-    setCartItems([]);
-  };
-
-  const getTotalItems = () => {
-    return cartItems.reduce((total, item) => total + item.quantity, 0);
+    setCartItems(emptyCart());
+    handleCloseCart();
   };
 
   useEffect(() => {
-    // Manejo del cambio de altura del header al hacer scroll
     const handleScroll = () => {
-      setHeaderHeight(window.scrollY > 20 ? 60 : 128); // Cambia la altura según el scroll
+      setHeaderHeight(window.scrollY > 20 ? 60 : 128);
     };
 
     window.addEventListener('scroll', handleScroll);
@@ -79,6 +73,7 @@ function App() {
                 cartItems={cartItems}
                 onUpdateQuantity={handleUpdateQuantity}
                 onRemoveFromCart={handleRemoveFromCart}
+
               />
             }
           />
@@ -87,6 +82,7 @@ function App() {
 
       <Drawer anchor="right" open={cartOpen} onClose={handleCloseCart}>
         <Cart
+          setSnackbar={showSnackbar} 
           cartItems={cartItems}
           onRemoveFromCart={handleRemoveFromCart}
           onUpdateQuantity={handleUpdateQuantity}
@@ -100,7 +96,7 @@ function App() {
         onClick={handleOpenCart}
         style={{ position: 'fixed', top: 22, right: 30, zIndex: 1000 }}
       >
-        <Badge badgeContent={getTotalItems()} color="secondary">
+        <Badge badgeContent={getTotalItems(cartItems)} color="secondary">
           <img
             src="/cart.png"
             alt="Cart"
@@ -108,6 +104,21 @@ function App() {
           />
         </Badge>
       </IconButton>
+      <WhatsAppButton />
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert
+        onClose={handleSnackbarClose}
+        severity={snackbar.severity}
+        sx={{ width: '100%' }}
+      >
+        {snackbar.message} {/* Aquí debe ser una cadena */}
+      </Alert>
+      </Snackbar>
     </Router>
   );
 }

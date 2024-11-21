@@ -13,7 +13,6 @@ const StyledToolbar = styled(Toolbar)(({ theme }) => ({
 }));
 
 const Header = () => {
-  const [scrollPosition, setScrollPosition] = useState(0);
   const [showHeader, setShowHeader] = useState(true);
   const [lastScroll, setLastScroll] = useState(0);
 
@@ -28,7 +27,6 @@ const Header = () => {
     }
 
     setLastScroll(currentScroll);
-    setScrollPosition(currentScroll);
   };
 
   useEffect(() => {
@@ -40,9 +38,9 @@ const Header = () => {
     <Box sx={{ flexGrow: 1 }}>
       <AppBar
         sx={{
-          backgroundColor: 'transparent',
+          backgroundColor: 'black',
           boxShadow: 'none',
-          height: '128px',
+          height: '100px',
           transition: 'transform 0.3s ease',
           transform: showHeader ? 'translateY(0)' : 'translateY(-100%)',
           zIndex: 1,
@@ -55,7 +53,7 @@ const Header = () => {
             sx={{
               flexGrow: 1,
               textAlign: 'center',
-              color: 'black',
+              color: 'white',
               fontFamily: 'Helvetica, Helvetica Neue, Arial, Lucida Grande, sans-serif',
               fontWeight: 'bold',
               textTransform: 'uppercase',

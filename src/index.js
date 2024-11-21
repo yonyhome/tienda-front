@@ -6,8 +6,16 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 
 // Define el tema con la fuente deseada
 const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#1976d2',
+    },
+    secondary: {
+      main: '#ff4081',
+    },
+  },
   typography: {
-    fontFamily: 'Helvetica, Helvetica Neue, Arial, Lucida Grande, sans-serif',
+    fontFamily: 'Roboto, Helvetica, Arial, sans-serif',
   },
 });
 
