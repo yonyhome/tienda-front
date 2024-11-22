@@ -26,6 +26,7 @@ export const fetchProducts = async () => {
     );
 
     if (response.data.status === 'success') {
+      console.log(response.data.data);
       const productsWithImages = response.data.data.map((product) => ({
         ...product,
         imagenUrl: product.imagenes[0] || 'ruta_a_imagen_placeholder.jpg',
@@ -77,6 +78,7 @@ export const registrarPedido = async (pedidoData) => {
 // src/utils.js
 
 export const addToCart = (cartItems, product, talla) => {
+  playSound("/sounds/notificacion.mp3");
   const productWithSize = { ...product, talla };
   const existingItem = cartItems.find(
     (item) => item.id === productWithSize.id && item.talla === talla
@@ -94,6 +96,7 @@ export const addToCart = (cartItems, product, talla) => {
 };
 
 export const removeFromCart = (cartItems, id, talla) => {
+  playSound("/sounds/borrar.mp3")
   return cartItems.filter((item) => !(item.id === id && item.talla === talla));
 };
 
@@ -121,10 +124,17 @@ export const calculateTotal = (cartItems, discount) => {
 // utils.js
 export const applyDiscount = (discountCode) => {
   if (discountCode === 'DESCUENTO10') {
+    playSound("/sounds/notificacion.mp3");
     return { discount: 0.1, message: '¡Descuento aplicado correctamente!', severity: 'success' };
   }
   return { discount: 0, message: 'Código inválido. Intenta nuevamente.', severity: 'error' };
 };
 
-  
-  
+export const playSound = (soundUrl) => {
+  try {
+    const audio = new Audio(soundUrl);
+    audio.play();
+  } catch (error) {
+    console.error('Error al reproducir el sonido:', error);
+  }
+};

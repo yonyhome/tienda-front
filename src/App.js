@@ -12,6 +12,7 @@ import {
   updateCartQuantity,
   emptyCart,
   getTotalItems,
+  playSound
 } from './services/utils';
 
 function App() {
@@ -25,6 +26,7 @@ function App() {
   });
 
   const showSnackbar = (message, severity = 'success') => {
+    playSound();
     setSnackbar({ open: true, message, severity });
   };
 
