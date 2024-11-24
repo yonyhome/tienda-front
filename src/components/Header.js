@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { styled } from '@mui/material/styles';
 import { AppBar, Toolbar, Typography, Box } from '@mui/material';
 
@@ -16,7 +16,8 @@ const Header = () => {
   const [showHeader, setShowHeader] = useState(true);
   const [lastScroll, setLastScroll] = useState(0);
 
-  const handleScroll = () => {
+  // Memoizar handleScroll para que no se vuelva a crear en cada render
+  const handleScroll = useCallback(() => {
     const currentScroll = window.scrollY;
 
     // Mostrar el header si se sube y ocultarlo si se baja
@@ -27,12 +28,12 @@ const Header = () => {
     }
 
     setLastScroll(currentScroll);
-  };
+  }, [lastScroll]);
 
   useEffect(() => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [lastScroll]);
+  }, [handleScroll]); // Solo depende de handleScroll
 
   return (
     <Box sx={{ flexGrow: 1 }}>
