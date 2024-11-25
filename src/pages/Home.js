@@ -55,6 +55,9 @@ const Home = ({ onAddToCart }) => {
   const handleCloseProductDetails = () => {
     setSelectedProduct(null);
   };
+  const deadline = new Date(); // Ajusta la fecha límite
+  deadline.setHours(deadline.getHours() + 6); // Ejemplo: 6 horas desde ahora
+
 
   return (
     <>
@@ -64,20 +67,23 @@ const Home = ({ onAddToCart }) => {
             <CircularProgress />
           </Box>
         ) : (
-          <Grid container spacing={2} justifyContent="center">
-            {productos.map((producto) => (
-              <Grid
-                item
-                xs={6}
-                sm={4}
-                md={3}
-                key={producto.id}
-                style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}
-              >
-                <ProductCard product={producto} onAddToCart={onAddToCart} onOpenDetails={handleOpenProductDetails} />
-              </Grid>
-            ))}
-          </Grid>
+          <Box display="flex" justifyContent="center" alignItems="row" height="100vh">
+            <Grid container spacing={2} justifyContent="center">
+              {productos.map((producto) => (
+                <Grid
+                  item
+                  xs={6}
+                  sm={4}
+                  md={3}
+                  key={producto.id}
+                  style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}
+                >
+                  <ProductCard product={producto} onAddToCart={onAddToCart} onOpenDetails={handleOpenProductDetails} />
+                </Grid>
+              ))}
+            </Grid>
+          </Box>
+          
         )}
       </Container>
 

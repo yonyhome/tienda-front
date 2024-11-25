@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState} from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Header from './components/Header';
 import Home from './pages/Home';
@@ -18,7 +18,6 @@ import {
 function App() {
   const [cartOpen, setCartOpen] = useState(false);
   const [cartItems, setCartItems] = useState([]);
-  const [headerHeight, setHeaderHeight] = useState(128); // Valor inicial
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: '',
@@ -53,19 +52,12 @@ function App() {
     handleCloseCart();
   };
 
-  useEffect(() => {
-    const handleScroll = () => {
-      setHeaderHeight(window.scrollY > 20 ? 60 : 128);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  
 
   return (
     <Router>
-      <Header />
-      <Box sx={{ marginTop: `${headerHeight}px` }}>
+      <Header deadline="2024-12-01T23:59:59" />
+      <Box>
         <Routes>
           <Route
             path="/"

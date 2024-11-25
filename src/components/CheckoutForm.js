@@ -25,6 +25,7 @@ const CheckoutForm = ({ subtotal, shippingCost, cartItems, onCloseDialog, showSn
     setLoading(true);
 
     const orderData = {
+      action: "registrarPedido",
       nombre: formData.firstName,
       telefono: formData.phoneNumber,
       direccion: formData.address,
@@ -44,6 +45,7 @@ const CheckoutForm = ({ subtotal, shippingCost, cartItems, onCloseDialog, showSn
 
       if (isOrderRegistered) {
         // Mostrar mensaje de éxito
+        
         showSnackbar({
           message: '¡Pedido realizado con éxito! Muy pronto nos contactaremos por WhatsApp para confirmarlo.',
           severity: 'success',
@@ -60,6 +62,7 @@ const CheckoutForm = ({ subtotal, shippingCost, cartItems, onCloseDialog, showSn
         
       }
     } catch (error) {
+      
       showSnackbar({
         message: 'Ocurrió un error inesperado. Por favor, inténtalo más tarde.',
         severity: 'error',

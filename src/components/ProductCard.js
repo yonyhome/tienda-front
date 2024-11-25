@@ -32,7 +32,7 @@ const ProductCard = ({ product, onAddToCart }) => {
       alert('Por favor, selecciona una talla antes de añadir al carrito');
     }
   };
-  console.log(product.imagenes)
+  
   return (
     <>
       <Card
@@ -60,19 +60,13 @@ const ProductCard = ({ product, onAddToCart }) => {
             gutterBottom
             variant="h5"
             component="div"
-            sx={{
-              fontWeight: 'bold',
-              fontFamily: 'Helvetica, Helvetica Neue, Arial, Lucida Grande, sans-serif',
-            }}
+            
           >
             {product.nombre}
           </Typography>
           <Typography
             variant="h6"
-            sx={{
-              fontWeight: 'bold',
-              fontFamily: 'Helvetica, Helvetica Neue, Arial, Lucida Grande, sans-serif',
-            }}
+           
           >
             $ {product.precio}
           </Typography>

@@ -22,11 +22,10 @@ export const crearPedidoData = (nombre, telefono, direccion, productos) => {
 export const fetchProducts = async () => {
   try {
     const response = await axios.get(
-      'https://script.google.com/macros/s/AKfycbw-MZrNaZp7AM9_LUwiO6bKv-9bnt5rIRHfZku8oeG4gOoZYWn1Jh3S_zpWQdRzFTdLBg/exec'
+      'https://script.google.com/macros/s/AKfycbxkePK0O0Fd_wVM_5A_pacjKPLAMzZWSzZ9w-IeiXDmfSihpMCHpNiKRma-g20Cau1Ilw/exec'
     );
 
     if (response.data.status === 'success') {
-      console.log(response.data.data);
       const productsWithImages = response.data.data.map((product) => ({
         ...product,
         imagenUrl: product.imagenes[0] || 'ruta_a_imagen_placeholder.jpg',
@@ -45,37 +44,36 @@ export const fetchProducts = async () => {
 // Función para registrar un pedido enviándolo al endpoint de Google Apps Script
 export const registrarPedido = async (pedidoData) => {
   try {
-    // Realizar la solicitud POST al endpoint
-    const response = await fetch('https://script.google.com/macros/s/AKfycbw-MZrNaZp7AM9_LUwiO6bKv-9bnt5rIRHfZku8oeG4gOoZYWn1Jh3S_zpWQdRzFTdLBg/exec', {
-      method: 'POST', // Método POST para enviar datos
-      redirect: "follow", // Manejar posibles redirecciones automáticamente
-      headers: {
-        "Content-Type": "text/plain;charset=utf-8", // Configuración para evitar solicitud preflight
-      },
-      body: JSON.stringify(pedidoData), // Convertir el objeto del pedido a JSON
-    });
+    const response = await fetch(
+      'https://script.google.com/macros/s/AKfycbxkePK0O0Fd_wVM_5A_pacjKPLAMzZWSzZ9w-IeiXDmfSihpMCHpNiKRma-g20Cau1Ilw/exec', 
+      {
+        method: 'POST',
+        redirect: 'follow', // Sigue las redirecciones automáticamente
+        headers: {
+          "Content-Type": "text/plain;charset=utf-8", // Evita la solicitud preflight
+        },
+        body: JSON.stringify(pedidoData),
+      }
+    );
 
-    // Verificar si la respuesta fue exitosa
-    if (!response.ok) {
-      throw new Error(`Error en la respuesta: ${response.status} ${response.statusText}`);
-    }
+    // Manejo de la respuesta como texto
+    const data = await response.text();
 
-    // Leer la respuesta como texto
-    const data = await response.text(); // Leer la respuesta como texto
+    // Intentar parsear el texto como JSON (Apps Script devuelve un texto JSON)
+    const parsedData = JSON.parse(data);
 
-    // Mostrar el mensaje de éxito o error basado en el texto
-    if (data === "Pedido registrado con éxito") {
-      console.log("Pedido registrado correctamente.");
-      return true; // Indicar que el pedido fue registrado exitosamente
+    // Validar el estado devuelto
+    if (parsedData.status === 'success') {
+      playSound("/sounds/notificacion.mp3");
+      return true; // Retorna éxito
     } else {
-      throw new Error(data || "Error al registrar el pedido");
+      throw new Error(parsedData.message || "Error desconocido al registrar el pedido");
     }
   } catch (error) {
     console.error("Error en el registro del pedido:", error);
-    throw error; // Re-lanzar el error para manejo adicional
+    throw error; // Re-lanza el error para manejo adicional
   }
 };
-// src/utils.js
 
 export const addToCart = (cartItems, product, talla) => {
   playSound("/sounds/notificacion.mp3");
