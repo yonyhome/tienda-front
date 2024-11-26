@@ -1,18 +1,51 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { AppBar, Toolbar, Box, IconButton, Badge, Typography, Drawer, List, ListItem, ListItemText } from "@mui/material";
+import MenuIcon from "@mui/icons-material/Menu";
+import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import { styled } from "@mui/material/styles";
-import { AppBar, Toolbar, Typography, Box } from "@mui/material";
 
 // Estilizar el Toolbar
 const StyledToolbar = styled(Toolbar)(({ theme }) => ({
   alignItems: "center",
-  "@media all": {
-    minHeight: 80, // Altura ajustada para compactar el header
+  justifyContent: "space-between",
+  padding: theme.spacing(1, 2),
+}));
+
+// Contenedor para las categorías (solo visible en pantallas grandes)
+const CategoriesBox = styled(Box)(({ theme }) => ({
+  display: "flex",
+  justifyContent: "center",
+  gap: theme.spacing(4),
+  [theme.breakpoints.down("sm")]: {
+    display: "none", // Ocultar en pantallas pequeñas
   },
 }));
 
-const Header = ({ deadline }) => {
+// Estilo para los enlaces de categorías
+const CategoryLink = styled(Typography)(({ theme }) => ({
+  fontSize: "16px",
+  fontWeight: "bold",
+  color: "white",
+  textTransform: "uppercase",
+  cursor: "pointer",
+  "&:hover": {
+    textDecoration: "underline",
+  },
+}));
+
+// Logo
+const Logo = styled("img")(({ theme }) => ({
+  height: "50px",
+  cursor: "pointer",
+  [theme.breakpoints.down("sm")]: {
+    height: "40px", // Reducir tamaño en móviles
+  },
+}));
+
+const Header = ({ deadline, cartItems, onOpenCart, getTotalItems }) => {
   const [showHeader, setShowHeader] = useState(true);
   const [showBanner, setShowBanner] = useState(true);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [lastScroll, setLastScroll] = useState(0);
   const [timeLeft, setTimeLeft] = useState({
     hours: "00",
@@ -47,34 +80,33 @@ const Header = ({ deadline }) => {
     const currentScroll = window.scrollY;
 
     if (currentScroll > lastScroll && currentScroll > 70) {
-      // Ocultar el header al bajar
       setShowHeader(false);
     } else {
-      // Mostrar el header al subir
       setShowHeader(true);
     }
 
-    // Mostrar el banner solo si estamos en el top de la página
     setShowBanner(currentScroll === 0);
 
     setLastScroll(currentScroll);
   }, [lastScroll]);
 
   useEffect(() => {
-    // Listener del scroll
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, [handleScroll]);
 
   useEffect(() => {
-    // Intervalo para actualizar el tiempo restante
     const timer = setInterval(calculateTimeLeft, 1000);
     return () => clearInterval(timer);
   }, [calculateTimeLeft]);
 
+  // Abrir y cerrar el menú hamburguesa
+  const toggleMenu = (open) => {
+    setMenuOpen(open);
+  };
+
   return (
     <Box>
-      {/* Banner de Black Days */}
       {showBanner && (
         <Box
           sx={{
@@ -82,14 +114,14 @@ const Header = ({ deadline }) => {
             color: "white",
             width: "100%",
             display: "flex",
-            justifyContent: "space-around",
+            justifyContent: "space-evenly",
             alignItems: "center",
-            height: "40px", // Altura del banner ajustada
+            height: "40px",
             position: "fixed",
             top: 0,
             zIndex: 1100,
             px: 2,
-            transition: "transform 0.3s ease",
+            transition: "transform 2s ease",
             transform: showBanner ? "translateY(0)" : "translateY(-100%)",
           }}
         >
@@ -98,33 +130,41 @@ const Header = ({ deadline }) => {
             sx={{
               textTransform: "uppercase",
               fontWeight: "bold",
-              fontSize: "12px", // Tamaño más pequeño para el texto del banner
+              fontSize: "10px",
             }}
           >
-            🔥 Aprovecha nuestro Black Days 🔥
+            🔥 Aprovecha nuestros Black Days 🔥
           </Typography>
           <Box sx={{ display: "flex", gap: 1 }}>
             {Object.entries(timeLeft).map(([label, value]) => (
-              <Box
-                key={label}
-                sx={{
-                  backgroundColor: "white",
-                  color: "black",
-                  textAlign: "center",
-                  px: 0.5, // Reducir el padding de las cajas
-                  py: 0.5, // Reducir el padding vertical
-                  borderRadius: 2,
-                  display: "flex",
-                  flexDirection: "column", // Colocar el número arriba y el texto debajo
-                  alignItems: "center",
-                }}
-              >
-                <Typography variant="body1" sx={{ fontWeight: "bold", fontSize: "14px" }}>
-                  {value}
-                </Typography>
+              <Box key={label}>
+                <Box
+                  sx={{
+                    backgroundColor: "white",
+                    color: "black",
+                    textAlign: "center",
+                    px: 0.05,
+                    py: 0.05,
+                    borderRadius: 1,
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                  }}
+                >
+                  <Typography
+                    variant="body1"
+                    sx={{ fontWeight: "bold", fontSize: "12px" }}
+                  >
+                    {value}
+                  </Typography>
+                </Box>
                 <Typography
                   variant="caption"
-                  sx={{ fontSize: "8px", fontWeight: "bold", textTransform: "uppercase", marginTop: "2px" }}
+                  sx={{
+                    fontSize: "8px",
+                    fontWeight: "bold",
+                    textTransform: "uppercase",
+                  }}
                 >
                   {label}
                 </Typography>
@@ -134,35 +174,55 @@ const Header = ({ deadline }) => {
         </Box>
       )}
 
-      {/* Header principal */}
       <AppBar
         sx={{
-          backgroundColor: "black",
+          backgroundColor: showBanner ? "transparent" : "black",
           boxShadow: "none",
-          height: "80px", // Altura del header
-          marginTop: showBanner ? "40px" : 0, // Ajustar espacio debajo del banner
-          transition: "transform 0.3s ease, margin-top 0.3s ease",
+          height: "80px",
+          marginTop: showBanner ? "35px" : 0,
+          transition: "transform 0.1s ease, margin-top 0.1s ease",
           transform: showHeader ? "translateY(0)" : "translateY(-100%)",
           zIndex: 1000,
-          position: "fixed", // Fijo para mantener el header visible al desplazarse
+          position: "fixed",
         }}
       >
         <StyledToolbar>
-          <Typography
-            variant="h5"
-            component="div"
-            sx={{
-              flexGrow: 1,
-              textAlign: "center",
-              color: "white",
-              fontFamily: "Helvetica, Helvetica Neue, Arial, Lucida Grande, sans-serif",
-              fontWeight: "bold",
-              textTransform: "uppercase",
-              fontSize: "24px", // Tamaño del texto del header
-            }}
-          >
-            HOMEWARD
-          </Typography>
+          {/* Logo alineado a la izquierda */}
+          <Logo src="/logo.png" alt="Logo" />
+
+          {/* Categorías centradas (solo en pantallas grandes) */}
+          <CategoriesBox>
+            <CategoryLink>Hombre</CategoryLink>
+            <CategoryLink>Mujer</CategoryLink>
+            <CategoryLink>Accesorios</CategoryLink>
+          </CategoriesBox>
+
+          {/* Menú hamburguesa en pantallas pequeñas */}
+          <Box sx={{ display: { xs: "block", sm: "none" } }}>
+            <IconButton color="inherit" onClick={() => toggleMenu(true)}>
+              <MenuIcon />
+            </IconButton>
+            <Drawer anchor="right" open={menuOpen} onClose={() => toggleMenu(false)}>
+              <List>
+                <ListItem button>
+                  <ListItemText primary="Hombre" />
+                </ListItem>
+                <ListItem button>
+                  <ListItemText primary="Mujer" />
+                </ListItem>
+                <ListItem button>
+                  <ListItemText primary="Accesorios" />
+                </ListItem>
+              </List>
+            </Drawer>
+          </Box>
+
+          {/* Botón del carrito alineado a la derecha */}
+          <IconButton color="inherit" onClick={onOpenCart}>
+            <Badge badgeContent={getTotalItems(cartItems)} color="secondary">
+              <ShoppingCartIcon />
+            </Badge>
+          </IconButton>
         </StyledToolbar>
       </AppBar>
     </Box>
