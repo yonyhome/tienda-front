@@ -15,18 +15,18 @@ const WhatsAppButton = () => {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        width: 60,
-        height: 60,
-        backgroundColor: '#25D366',
+        width: 50,
+        height: 50,
+        backgroundColor: '#000000',
         borderRadius: '50%',
         boxShadow: '0 4px 6px rgba(0,0,0,0.2)',
         textDecoration: 'none',
       }}
     >
       <img
-        src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg"
+        src="/whatsapp.png"
         alt="Chat on WhatsApp"
-        style={{ width: '32px', height: '32px' }}
+        style={{ width: '50px', height: '50px' }}
       />
     </a>
   );

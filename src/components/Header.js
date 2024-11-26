@@ -109,100 +109,106 @@ const Header = ({ deadline, cartItems, onOpenCart, getTotalItems }) => {
     <Box>
       {showBanner && (
         <Box
+        sx={{
+          backgroundColor: "black",
+          color: "white",
+          width: "100%",
+          display: "flex",
+          flexDirection: { xs: "column", md: "row" }, // Columna en pantallas pequeñas, fila en grandes
+          justifyContent: { xs: "center", md: "space-evenly" },
+          alignItems: "center",
+          height: { xs: "60px", md: "40px" }, // Más alto en pantallas pequeñas
+          position: "fixed",
+          top: 0,
+          zIndex: 1100,
+          px: 2,
+          transition: "transform 2s ease",
+          transform: showBanner ? "translateY(0)" : "translateY(-100%)",
+          textAlign: "center", // Centra el texto en pantallas pequeñas
+        }}
+      >
+        <Typography
+          variant="body2"
           sx={{
-            backgroundColor: "black",
-            color: "white",
-            width: "100%",
-            display: "flex",
-            justifyContent: "space-evenly",
+            alignContent: "center",
             alignItems: "center",
-            height: "40px",
-            position: "fixed",
-            top: 0,
-            zIndex: 1100,
-            px: 2,
-            transition: "transform 2s ease",
-            transform: showBanner ? "translateY(0)" : "translateY(-100%)",
+            textTransform: "uppercase",
+            fontWeight: "bold",
+            fontSize: { xs: "12px", md: "10px" }, // Texto más grande en pantallas pequeñas
+            mb: { xs: 0, md: 0 }, // Espaciado inferior en pantallas pequeñas
           }}
         >
-          <Typography
-            variant="body2"
-            sx={{
-              textTransform: "uppercase",
-              fontWeight: "bold",
-              fontSize: "10px",
-            }}
-          >
-            🔥 Aprovecha nuestros Black Days 🔥
-          </Typography>
-          <Box sx={{ display: "flex", gap: 1 }}>
-            {Object.entries(timeLeft).map(([label, value]) => (
-              <Box key={label}>
-                <Box
-                  sx={{
-                    backgroundColor: "white",
-                    color: "black",
-                    textAlign: "center",
-                    px: 0.05,
-                    py: 0.05,
-                    borderRadius: 1,
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                  }}
-                >
-                  <Typography
-                    variant="body1"
-                    sx={{ fontWeight: "bold", fontSize: "12px" }}
-                  >
-                    {value}
-                  </Typography>
-                </Box>
+          🔥 Aprovecha nuestros Black Days 🔥
+        </Typography>
+        <Box
+          sx={{
+            display: "flex",
+            gap: 1,
+            flexDirection: { xs: "row", md: "row" }, // Contadores en fila en ambas resoluciones
+          }}
+        >
+          {Object.entries(timeLeft).map(([label, value]) => (
+            <Box key={label}>
+              <Box
+                sx={{
+                  backgroundColor: "white",
+                  color: "black",
+                  textAlign: "center",
+                  px: 0.05,
+                  py: 0.05,
+                  borderRadius: 1,
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                }}
+              >
                 <Typography
-                  variant="caption"
-                  sx={{
-                    fontSize: "8px",
-                    fontWeight: "bold",
-                    textTransform: "uppercase",
-                  }}
+                  variant="body1"
+                  sx={{ fontWeight: "bold", fontSize: { xs: "14px", md: "12px" } }} // Texto más grande en pantallas pequeñas
                 >
-                  {label}
+                  {value}
                 </Typography>
               </Box>
-            ))}
-          </Box>
+              <Typography
+                variant="caption"
+                sx={{
+                  fontSize: { xs: "10px", md: "8px" }, // Etiqueta más grande en pantallas pequeñas
+                  fontWeight: "bold",
+                  textTransform: "uppercase",
+                }}
+              >
+                {label}
+              </Typography>
+            </Box>
+          ))}
         </Box>
+      </Box>
+      
       )}
 
       <AppBar
         sx={{
+          alignContent: "center",
           backgroundColor: showBanner ? "transparent" : "black",
           boxShadow: "none",
-          height: "80px",
-          marginTop: showBanner ? "35px" : 0,
-          transition: "transform 0.1s ease, margin-top 0.1s ease",
+          height: showBanner ? "80px" : "60px",
+          marginTop: showBanner ? { xs: "60px", md: "40px" } : 0,
+          transition: "transform 0.1s ease, margin-top 0.1s ease, background-color 0.3s ease",
           transform: showHeader ? "translateY(0)" : "translateY(-100%)",
           zIndex: 1000,
           position: "fixed",
+          ":hover": {
+            backgroundColor: showBanner ? "black" : "black", // Si es transparente, cambia a negro al pasar el mouse
+          },
         }}
       >
         <StyledToolbar>
-          {/* Logo alineado a la izquierda */}
-          <Logo src="/logo.png" alt="Logo" />
-
-          {/* Categorías centradas (solo en pantallas grandes) */}
-          <CategoriesBox>
-            <CategoryLink>Hombre</CategoryLink>
-            <CategoryLink>Mujer</CategoryLink>
-            <CategoryLink>Accesorios</CategoryLink>
-          </CategoriesBox>
-
           {/* Menú hamburguesa en pantallas pequeñas */}
           <Box sx={{ display: { xs: "block", sm: "none" } }}>
             <IconButton color="inherit" onClick={() => toggleMenu(true)}>
               <MenuIcon />
             </IconButton>
-            <Drawer anchor="right" open={menuOpen} onClose={() => toggleMenu(false)}>
+            <Drawer anchor="left" open={menuOpen} onClose={() => toggleMenu(false)}>
               <List>
                 <ListItem button>
                   <ListItemText primary="Hombre" />
@@ -217,6 +223,18 @@ const Header = ({ deadline, cartItems, onOpenCart, getTotalItems }) => {
             </Drawer>
           </Box>
 
+          {/* Logo alineado a la izquierda */}
+          <Logo src="/logo2.png" alt="Logo" />
+
+          {/* Categorías centradas (solo en pantallas grandes) */}
+          <CategoriesBox>
+            <CategoryLink>Hombre</CategoryLink>
+            <CategoryLink>Mujer</CategoryLink>
+            <CategoryLink>Accesorios</CategoryLink>
+          </CategoriesBox>
+
+          
+
           {/* Botón del carrito alineado a la derecha */}
           <IconButton color="inherit" onClick={onOpenCart}>
             <Badge badgeContent={getTotalItems(cartItems)} color="secondary">
@@ -225,6 +243,7 @@ const Header = ({ deadline, cartItems, onOpenCart, getTotalItems }) => {
           </IconButton>
         </StyledToolbar>
       </AppBar>
+
     </Box>
   );
 };

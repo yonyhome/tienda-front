@@ -3,8 +3,13 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Header from "./components/Header";
 import Home from "./pages/Home";
 import Cart from "./components/Cart";
+import Footer from "./components/Footer";
 import WhatsAppButton from "./components/WhatsappButton";
-import { Drawer, Box, Snackbar, Alert } from "@mui/material";
+import OrderTracking from "./pages/OrderTracking";
+import TermsAndConditions from "./pages/TermsAndConditions";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import FAQ from "./pages/FAQ";
+import { Drawer, Box, Snackbar, Alert, Toolbar} from "@mui/material";
 import {
   addToCart,
   removeFromCart,
@@ -53,13 +58,13 @@ function App() {
 
   return (
     <Router>
-      {/* Pasar las props necesarias al Header */}
       <Header
         deadline="2024-12-01T23:59:59"
         cartItems={cartItems}
         onOpenCart={handleOpenCart}
         getTotalItems={getTotalItems}
       />
+      <Toolbar />
       <Box>
         <Routes>
           <Route
@@ -73,6 +78,10 @@ function App() {
               />
             }
           />
+          <Route path="/order-tracking" element={<OrderTracking />} />
+          <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/faq" element={<FAQ />} />
         </Routes>
       </Box>
 
@@ -102,6 +111,7 @@ function App() {
           {snackbar.message}
         </Alert>
       </Snackbar>
+      <Footer />
     </Router>
   );
 }
