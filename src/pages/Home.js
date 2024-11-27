@@ -1,45 +1,22 @@
-import React, { useState, useEffect } from "react";
-import ProductCard from "../components/ProductCard";
-import {
-  Grid,
-  Container,
-  CircularProgress,
-  Box,
-  Drawer,
-} from "@mui/material";
+// Home.js
+import React, { useState } from "react";
+import { Box, Drawer } from "@mui/material";
 import Cart from "../components/Cart";
-import ProductDetailsModal from "../components/ProductDetailsModal";
 import FullScreenBanner from "../components/FullScreenBanner";
-import { fetchProducts } from "../services/utils";
+import ProductDetailsModal from "../components/ProductDetailsModal";
+import CategoryCards from "../components/CategoryCards"; // Importa el componente de las categorías
 
 const Home = ({ onAddToCart }) => {
-  const [productos, setProductos] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [cartOpen, setCartOpen] = useState(false);
   const [cartItems, setCartItems] = useState(() => {
     const savedCartItems = localStorage.getItem("cartItems");
     return savedCartItems ? JSON.parse(savedCartItems) : [];
   });
-  const [selectedProduct, setSelectedProduct] = useState(null); // Producto seleccionado para el modal
-
-  useEffect(() => {
-    const loadProducts = async () => {
-      setLoading(true);
-      const products = await fetchProducts(); // Llamada a la función desde utils.js
-      setProductos(products);
-      setLoading(false);
-    };
-
-    loadProducts();
-  }, []);
+  const [selectedProduct, setSelectedProduct] = useState(null);
 
   const toggleCart = () => {
     setCartOpen((prev) => !prev);
   };
-
-  useEffect(() => {
-    localStorage.setItem("cartItems", JSON.stringify(cartItems));
-  }, [cartItems]);
 
   const handleRemoveFromCart = (id) => {
     setCartItems((prevItems) =>
@@ -72,57 +49,14 @@ const Home = ({ onAddToCart }) => {
         <FullScreenBanner />
       </Box>
 
-      {/* Contenedor de productos */}
-      <Container sx={{ mt: 2 }}>
-        {loading ? (
-          <Box
-            display="flex"
-            justifyContent="center"
-            alignItems="center"
-            height="100vh"
-          >
-            <CircularProgress />
-          </Box>
-        ) : (
-          <Grid container spacing={2} justifyContent="center">
-            {productos.map((producto) => (
-              <Grid
-                item
-                xs={6}
-                sm={4}
-                md={3}
-                key={producto.id}
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "center",
-                }}
-              >
-                <ProductCard
-                  product={producto}
-                  onAddToCart={onAddToCart}
-                  onOpenDetails={handleOpenProductDetails}
-                />
-              </Grid>
-            ))}
-          </Grid>
-        )}
-      </Container>
+      {/* Contenedor de categorías */}
+      <Box sx={{ marginTop: 2 }}>
+        <CategoryCards /> {/* Componente con las tarjetas de categorías */}
+      </Box>
 
-      {/* Carrito */}
-      <Drawer anchor="right" open={cartOpen} onClose={toggleCart}>
-        <Cart
-          cartItems={cartItems}
-          onRemoveFromCart={handleRemoveFromCart}
-          onUpdateQuantity={handleUpdateQuantity}
-        />
-      </Drawer>
+      
 
-      {/* Detalles del producto */}
-      <ProductDetailsModal
-        product={selectedProduct}
-        onClose={handleCloseProductDetails}
-      />
+      
     </Box>
   );
 };

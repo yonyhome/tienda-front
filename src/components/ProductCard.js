@@ -37,48 +37,85 @@ const ProductCard = ({ product, onAddToCart }) => {
     <>
       <Card
         onClick={handleOpen}
-        style={{
+        sx={{
           display: 'flex',
           flexDirection: 'column',
           height: '100%',
-          position: 'relative',
           cursor: 'pointer',
+          border: 'none',
+          boxShadow: 'none',
+          width: { xs: '100%', sm: '85%', md: '85%' }, // Ajustes de ancho según el tamaño de pantalla
+          margin: 'auto',
         }}
       >
         <CardMedia
           component="img"
-          height="190"
           image={product.imagenes?.[0] || '/no-photo.jpg'}
           alt={`Imagen del producto ${product.nombre}`}
           onError={(e) => {
             e.target.onerror = null;
             e.target.src = '/no-photo.jpg';
           }}
+          sx={{
+            width: '100%',
+            height: { xs: '250px', sm: '350px', md: '350px' }, // Altura adaptativa
+            objectFit: 'cover',
+          }}
         />
-        <CardContent>
+        <CardContent
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'left',
+            padding: '10px 0',
+          }}
+        >
           <Typography
             gutterBottom
             variant="h5"
             component="div"
-            
+            sx={{
+              textAlign: 'left',
+              color: '#333',
+            }}
           >
             {product.nombre}
           </Typography>
           <Typography
             variant="h6"
-           
+            sx={{
+              color: 'black',
+            }}
           >
             $ {product.precio}
           </Typography>
         </CardContent>
       </Card>
 
-      <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
-        <DialogTitle>{product.nombre}</DialogTitle>
+
+      <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
+        <Box 
+          sx={{ 
+            backgroundColor: '#000', 
+            color: '#FFF', 
+            textAlign: 'center', 
+            padding: '1rem', 
+            fontSize: '1.25rem', 
+            fontWeight: 'bold' 
+          }}
+        >
+          {product.nombre}
+        </Box>
         <DialogContent dividers>
           <Grid container spacing={2}>
             <Grid item xs={12}>
-              <Box position="relative" display="flex" justifyContent="center" alignItems="center">
+              <Box 
+                position="relative" 
+                display="flex" 
+                justifyContent="center" 
+                alignItems="center" 
+                sx={{ height: "400px" }} // Ajusta la altura de la imagen
+              >
                 <CardMedia
                   component="img"
                   image={product.imagenes?.[currentImageIndex] || '/no-photo.jpg'}
@@ -89,8 +126,9 @@ const ProductCard = ({ product, onAddToCart }) => {
                   }}
                   style={{
                     width: '100%',
-                    maxHeight: '300px',
-                    objectFit: 'contain',
+                    height: '100%',
+                    objectFit: 'cover', // Imagen ocupa todo el espacio
+                    borderRadius: '8px', // Esquinas redondeadas
                   }}
                 />
 
@@ -143,7 +181,16 @@ const ProductCard = ({ product, onAddToCart }) => {
                       key={talla}
                       variant={selectedSize === talla ? 'contained' : 'outlined'}
                       onClick={() => setSelectedSize(talla)}
-                      sx={{ m: 0.5 }}
+                      sx={{
+                        m: 0.5,
+                        backgroundColor: selectedSize === talla ? '#000' : 'transparent',
+                        color: selectedSize === talla ? '#FFF' : '#000',
+                        border: '1px solid #000',
+                        '&:hover': {
+                          backgroundColor: '#333',
+                          color: '#FFF',
+                        },
+                      }}
                     >
                       {talla}
                     </Button>
@@ -160,17 +207,35 @@ const ProductCard = ({ product, onAddToCart }) => {
         <DialogActions>
           <Button
             onClick={handleAddToCart}
-            color="primary"
             variant="contained"
+            sx={{
+              backgroundColor: '#000',
+              color: '#FFF',
+              '&:hover': {
+                backgroundColor: '#333',
+              },
+            }}
             disabled={!selectedSize}
           >
             Añadir al Carrito
           </Button>
-          <Button onClick={handleClose} color="secondary">
+          <Button
+            onClick={handleClose}
+            variant="contained"
+            sx={{
+              backgroundColor: '#FF5722',
+              color: '#FFF',
+              '&:hover': {
+                backgroundColor: '#E64A19',
+              },
+            }}
+          >
             Cerrar
           </Button>
         </DialogActions>
       </Dialog>
+
+
 
     </>
   );

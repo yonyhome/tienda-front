@@ -1,15 +1,18 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Header from "./components/Header";
-import Home from "./pages/Home";
-import Cart from "./components/Cart";
-import Footer from "./components/Footer";
+import Home from "./pages/Home"; // Home Importado
+import HombresPage from "./pages/HombresPage.js";
+import MujeresPage from "./pages/MujeresPage.js";
+import AccesoriosPage from "./pages/AccesoriosPage.js";
+import Cart from "./components/Cart.js";
+import Footer from "./components/Footer.js";
 import WhatsAppButton from "./components/WhatsappButton";
 import OrderTracking from "./pages/OrderTracking";
 import TermsAndConditions from "./pages/TermsAndConditions";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import FAQ from "./pages/FAQ";
-import { Drawer, Box, Snackbar, Alert, Toolbar} from "@mui/material";
+import { Drawer, Box, Snackbar, Alert, Toolbar, CircularProgress } from "@mui/material";
 import {
   addToCart,
   removeFromCart,
@@ -17,9 +20,12 @@ import {
   emptyCart,
   getTotalItems,
   playSound,
+  fetchProducts,
 } from "./services/utils";
 
 function App() {
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [cartOpen, setCartOpen] = useState(false);
   const [cartItems, setCartItems] = useState([]);
   const [snackbar, setSnackbar] = useState({
@@ -27,6 +33,18 @@ function App() {
     message: "",
     severity: "success",
   });
+
+  // Cargar productos al iniciar la aplicación
+  useEffect(() => {
+    const loadProducts = async () => {
+      setLoading(true);
+      const fetchedProducts = await fetchProducts(); // Llamada a la función de carga
+      console.log(fetchedProducts);
+      setProducts(fetchedProducts);
+      setLoading(false);
+    };
+    loadProducts();
+  }, []);
 
   const showSnackbar = (message, severity = "success") => {
     playSound();
@@ -36,15 +54,18 @@ function App() {
   const handleSnackbarClose = () => {
     setSnackbar({ ...snackbar, open: false });
   };
+
   const handleOpenCart = () => setCartOpen(true);
   const handleCloseCart = () => setCartOpen(false);
 
   const handleAddToCart = (product, talla) => {
     setCartItems((prevItems) => addToCart(prevItems, product, talla));
+    showSnackbar("Producto agregado al carrito");
   };
 
   const handleRemoveFromCart = (id, talla) => {
     setCartItems((prevItems) => removeFromCart(prevItems, id, talla));
+    showSnackbar("Producto eliminado del carrito", "info");
   };
 
   const handleUpdateQuantity = (id, talla, increment) => {
@@ -55,6 +76,19 @@ function App() {
     setCartItems(emptyCart());
     handleCloseCart();
   };
+
+  // Filtrar productos por categoría
+  const getCategoryProducts = (category) => {
+    return products.filter((product) => product.categoria === category);
+  };
+
+  if (loading) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
     <Router>
@@ -69,12 +103,26 @@ function App() {
         <Routes>
           <Route
             path="/"
+            element={<Home />} // Reintegramos el Home
+          />
+          <Route
+            path="/hombres"
             element={
-              <Home
+              <HombresPage products={getCategoryProducts("Hombre")} onAddToCart={handleAddToCart} />
+            }
+          />
+          <Route
+            path="/mujeres"
+            element={
+              <MujeresPage products={getCategoryProducts("Mujer")} onAddToCart={handleAddToCart} />
+            }
+          />
+          <Route
+            path="/accesorios"
+            element={
+              <AccesoriosPage
+                products={getCategoryProducts("accesorios")}
                 onAddToCart={handleAddToCart}
-                cartItems={cartItems}
-                onUpdateQuantity={handleUpdateQuantity}
-                onRemoveFromCart={handleRemoveFromCart}
               />
             }
           />

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { Link } from "react-router-dom";
 import { AppBar, Toolbar, Box, IconButton, Badge, Typography, Drawer, List, ListItem, ListItemText } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
@@ -22,14 +23,17 @@ const CategoriesBox = styled(Box)(({ theme }) => ({
 }));
 
 // Estilo para los enlaces de categorías
-const CategoryLink = styled(Typography)(({ theme }) => ({
-  fontSize: "16px",
-  fontWeight: "bold",
+const CategoryLink = styled(Link)(({ theme }) => ({
+  textDecoration: "none", // Sin subrayado
   color: "white",
-  textTransform: "uppercase",
-  cursor: "pointer",
+  fontWeight: "bold",
+  fontSize: "18px",
+  padding: "10px 20px",
+  borderRadius: "8px",
+  transition: "background-color 0.3s, color 0.3s",
   "&:hover": {
-    textDecoration: "underline",
+    backgroundColor: theme.palette.primary.main,
+    color: theme.palette.common.white,
   },
 }));
 
@@ -189,7 +193,7 @@ const Header = ({ deadline, cartItems, onOpenCart, getTotalItems }) => {
       <AppBar
         sx={{
           alignContent: "center",
-          backgroundColor: showBanner ? "transparent" : "black",
+          backgroundColor: "black",
           boxShadow: "none",
           height: showBanner ? "80px" : "60px",
           marginTop: showBanner ? { xs: "60px", md: "40px" } : 0,
@@ -197,9 +201,7 @@ const Header = ({ deadline, cartItems, onOpenCart, getTotalItems }) => {
           transform: showHeader ? "translateY(0)" : "translateY(-100%)",
           zIndex: 1000,
           position: "fixed",
-          ":hover": {
-            backgroundColor: showBanner ? "black" : "black", // Si es transparente, cambia a negro al pasar el mouse
-          },
+          
         }}
       >
         <StyledToolbar>
@@ -210,13 +212,13 @@ const Header = ({ deadline, cartItems, onOpenCart, getTotalItems }) => {
             </IconButton>
             <Drawer anchor="left" open={menuOpen} onClose={() => toggleMenu(false)}>
               <List>
-                <ListItem button>
+                <ListItem button component={Link} to="/hombres">
                   <ListItemText primary="Hombre" />
                 </ListItem>
-                <ListItem button>
+                <ListItem button component={Link} to="/mujeres">
                   <ListItemText primary="Mujer" />
                 </ListItem>
-                <ListItem button>
+                <ListItem button component={Link} to="/accesorios">
                   <ListItemText primary="Accesorios" />
                 </ListItem>
               </List>
@@ -224,13 +226,16 @@ const Header = ({ deadline, cartItems, onOpenCart, getTotalItems }) => {
           </Box>
 
           {/* Logo alineado a la izquierda */}
-          <Logo src="/logo2.png" alt="Logo" />
+          <Link to="/">
+            <Logo src="/logo2.png" alt="Logo" />
+          </Link>
+          
 
           {/* Categorías centradas (solo en pantallas grandes) */}
           <CategoriesBox>
-            <CategoryLink>Hombre</CategoryLink>
-            <CategoryLink>Mujer</CategoryLink>
-            <CategoryLink>Accesorios</CategoryLink>
+            <CategoryLink to="/hombres">Hombre</CategoryLink>
+            <CategoryLink to="/mujeres">Mujer</CategoryLink>
+            <CategoryLink to="/accesorios">Accesorios</CategoryLink>
           </CategoriesBox>
 
           
