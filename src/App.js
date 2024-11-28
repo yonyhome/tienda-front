@@ -58,8 +58,8 @@ function App() {
   const handleOpenCart = () => setCartOpen(true);
   const handleCloseCart = () => setCartOpen(false);
 
-  const handleAddToCart = (product, talla) => {
-    setCartItems((prevItems) => addToCart(prevItems, product, talla));
+  const handleAddToCart = (product, talla, color) => {
+    setCartItems((prevItems) => addToCart(prevItems, product, talla, color));
     showSnackbar("Producto agregado al carrito");
   };
 
@@ -79,9 +79,9 @@ function App() {
 
   // Filtrar productos por categoría
   const getCategoryProducts = (category) => {
-    return products.filter((product) => product.categoria === category);
+    return products.filter((product) => product.categorias.includes(category));
   };
-
+  
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
@@ -89,6 +89,7 @@ function App() {
       </Box>
     );
   }
+  
 
   return (
     <Router>

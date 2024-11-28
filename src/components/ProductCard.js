@@ -1,242 +1,186 @@
 import React, { useState } from 'react';
-import { Card, CardMedia, CardContent, Typography, Button, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, Grid, Box } from '@mui/material';
-import { ArrowBack, ArrowForward } from '@mui/icons-material';
+import { Card, CardContent, Typography, Box, Button } from '@mui/material';
+import ProductDialog from './ProductDialog';
+
+const COLOR_CODES = {
+  rojo: '#FF6961',
+  azul: '#77DDFF',
+  verde: '#77DD77',
+  amarillo: '#FDFD96',
+  rosado: '#FFB6C1',
+  lila: '#C3B1E1',
+  naranja: '#FFB347',
+  negro: '#000000',
+  blanco: '#FFFFFF',
+};
+
 const ProductCard = ({ product, onAddToCart }) => {
-  const [open, setOpen] = useState(false);
-  const [selectedSize, setSelectedSize] = useState(product?.tallas?.[0] || null);
+  const [selectedSize, setSelectedSize] = useState(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const handleOpen = () => {
-    setSelectedSize(product?.tallas?.[0] || null); // Restablecer talla al abrir modal
-    setOpen(true);
+  const [dialogOpen, setDialogOpen] = useState(false);
+
+  const handleMouseEnter = () => {
+    if (product.imagenes?.length > 1) setCurrentImageIndex(1);
   };
-  
-  const handleClose = () => setOpen(false);
-  const handlePrevious = (e) => {
-    e.stopPropagation(); // Para evitar abrir el modal al hacer clic en los botones
-    setCurrentImageIndex((prevIndex) =>
-      prevIndex === 0 ? product.imagenes.length - 1 : prevIndex - 1
-    );
+
+  const handleMouseLeave = () => setCurrentImageIndex(0);
+
+  const openDialog = () => {
+    setDialogOpen(true);
   };
-  const handleNext = (e) => {
-    e.stopPropagation();
-    setCurrentImageIndex((prevIndex) =>
-      prevIndex === product.imagenes.length - 1 ? 0 : prevIndex + 1
-    );
+
+  const handleSizeClick = (size) => {
+    setSelectedSize(size);
+    openDialog(); // Abrir diálogo con talla seleccionada
   };
-  const handleAddToCart = () => {
-    if (selectedSize) {
-      const productWithSize = { ...product, talla: selectedSize };
-      onAddToCart(productWithSize, selectedSize);
-      handleClose();
-    } else {
-      alert('Por favor, selecciona una talla antes de añadir al carrito');
-    }
-  };
-  
+
   return (
     <>
       <Card
-        onClick={handleOpen}
         sx={{
+          position: 'relative',
           display: 'flex',
           flexDirection: 'column',
           height: '100%',
-          cursor: 'pointer',
-          border: 'none',
-          boxShadow: 'none',
-          width: { xs: '100%', sm: '85%', md: '85%' }, // Ajustes de ancho según el tamaño de pantalla
+          width: '100%',
           margin: 'auto',
+          cursor: 'pointer',
         }}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+        onClick={openDialog} // Abrir diálogo al hacer clic en cualquier parte
       >
-        <CardMedia
-          component="img"
-          image={product.imagenes?.[0] || '/no-photo.jpg'}
-          alt={`Imagen del producto ${product.nombre}`}
-          onError={(e) => {
-            e.target.onerror = null;
-            e.target.src = '/no-photo.jpg';
-          }}
-          sx={{
-            width: '100%',
-            height: { xs: '250px', sm: '350px', md: '350px' }, // Altura adaptativa
-            objectFit: 'cover',
-          }}
-        />
-        <CardContent
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'left',
-            padding: '10px 0',
-          }}
-        >
-          <Typography
-            gutterBottom
-            variant="h5"
-            component="div"
+        {/* Imagen del producto */}
+        <Box position="relative">
+          <img
+            src={product.imagenes?.[currentImageIndex] || '/no-photo.jpg'}
+            alt={`Imagen de ${product.nombre}`}
+            style={{
+              width: '100%',
+              height: '300px',
+              objectFit: 'cover',
+            }}
+          />
+          {/* Selector de tallas */}
+          <Box
             sx={{
-              textAlign: 'left',
-              color: '#333',
+              position: 'absolute',
+              bottom: 0,
+              width: '100%',
+              backgroundColor: 'rgba(0, 0, 0, 0.8)',
+              color: 'white',
+              textAlign: 'center',
+              padding: '5px 0',
+            }}
+            onClick={(e) => e.stopPropagation()} // Evitar que abra el diálogo si se hace clic en las tallas
+          >
+            {product.tallas?.length > 1 ? (
+              product.tallas.map((talla) => (
+                <Typography
+                  key={talla}
+                  onClick={() => handleSizeClick(talla)}
+                  sx={{
+                    display: 'inline-block',
+                    margin: '0 5px',
+                    padding: '2px 6px',
+                    borderRadius: '4px',
+                    backgroundColor: selectedSize === talla ? '#77DD77' : 'transparent',
+                    cursor: 'pointer',
+                    '&:hover': { backgroundColor: '#99FF99' },
+                  }}
+                >
+                  {talla}
+                </Typography>
+              ))
+            ) : (
+              <Button
+                onClick={openDialog}
+                sx={{
+                  color: 'white',
+                  fontWeight: 'bold',
+                  textTransform: 'none',
+                  backgroundColor: 'transparent',
+                  border: 'none',
+                }}
+              >
+                Agregar al Carrito
+              </Button>
+            )}
+          </Box>
+        </Box>
+
+        {/* Contenido de la tarjeta */}
+        <CardContent sx={{ textAlign: 'left', padding: '10px' }}>
+          {/* Nombre del producto */}
+          <Typography
+            variant="h5"
+            sx={{
+              fontSize: { xs: '12px', md: '18px' },
+              fontWeight: 'bold',
+              marginBottom: '5px',
             }}
           >
             {product.nombre}
           </Typography>
-          <Typography
-            variant="h6"
+
+          {/* Precios */}
+          <Box
             sx={{
-              color: 'black',
+              display: 'flex',
+              flexDirection: { xs: 'column', md: 'row' },
+              alignItems: { md: 'center' },
+              marginBottom: '5px',
             }}
           >
-            $ {product.precio}
-          </Typography>
+            {product.descuento && (
+              <Typography
+                sx={{
+                  fontSize: { xs: '12px', md: '14px' },
+                  textDecoration: 'line-through',
+                  color: 'gray',
+                  marginRight: { md: '10px' },
+                }}
+              >
+                ${(product.precio / (1 - product.descuento / 100)).toFixed(2)}
+              </Typography>
+            )}
+            <Typography
+              sx={{
+                fontSize: { xs: '14px', md: '16px' },
+                fontWeight: 'bold',
+                color: 'black',
+              }}
+            >
+              ${product.precio}
+            </Typography>
+          </Box>
+
+          {/* Colores disponibles */}
+          <Box display="flex" alignItems="center" mt={1}>
+            {product.colores?.map((color) => (
+              <Box
+                key={color}
+                sx={{
+                  width: '20px',
+                  height: '20px',
+                  borderRadius: '50%',
+                  backgroundColor: COLOR_CODES[color] || 'gray',
+                  marginRight: '5px',
+                }}
+              />
+            ))}
+          </Box>
         </CardContent>
       </Card>
 
-
-      <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
-        <Box 
-          sx={{ 
-            backgroundColor: '#000', 
-            color: '#FFF', 
-            textAlign: 'center', 
-            padding: '1rem', 
-            fontSize: '1.25rem', 
-            fontWeight: 'bold' 
-          }}
-        >
-          {product.nombre}
-        </Box>
-        <DialogContent dividers>
-          <Grid container spacing={2}>
-            <Grid item xs={12}>
-              <Box 
-                position="relative" 
-                display="flex" 
-                justifyContent="center" 
-                alignItems="center" 
-                sx={{ height: "400px" }} // Ajusta la altura de la imagen
-              >
-                <CardMedia
-                  component="img"
-                  image={product.imagenes?.[currentImageIndex] || '/no-photo.jpg'}
-                  alt={`Imagen del producto ${product.nombre}`}
-                  onError={(e) => {
-                    e.target.onerror = null;
-                    e.target.src = '/no-photo.jpg';
-                  }}
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'cover', // Imagen ocupa todo el espacio
-                    borderRadius: '8px', // Esquinas redondeadas
-                  }}
-                />
-
-                {product.imagenes?.length > 1 && (
-                  <>
-                    {/* Botón Anterior */}
-                    <IconButton
-                      onClick={handlePrevious}
-                      style={{
-                        position: 'absolute',
-                        left: '10px',
-                        top: '50%',
-                        transform: 'translateY(-50%)',
-                        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                        color: 'white',
-                      }}
-                    >
-                      <ArrowBack />
-                    </IconButton>
-
-                    {/* Botón Siguiente */}
-                    <IconButton
-                      onClick={handleNext}
-                      style={{
-                        position: 'absolute',
-                        right: '10px',
-                        top: '50%',
-                        transform: 'translateY(-50%)',
-                        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                        color: 'white',
-                      }}
-                    >
-                      <ArrowForward />
-                    </IconButton>
-                  </>
-                )}
-              </Box>
-            </Grid>
-            <Grid item xs={12}>
-              <Typography variant="body2">
-                {product.descripcion || 'Sin descripción disponible.'}
-              </Typography>
-              <Typography variant="subtitle1" sx={{ mt: 2 }}>
-                Selecciona una talla:
-              </Typography>
-              <Box>
-                {product.tallas?.length > 0 ? (
-                  product.tallas.map((talla) => (
-                    <Button
-                      key={talla}
-                      variant={selectedSize === talla ? 'contained' : 'outlined'}
-                      onClick={() => setSelectedSize(talla)}
-                      sx={{
-                        m: 0.5,
-                        backgroundColor: selectedSize === talla ? '#000' : 'transparent',
-                        color: selectedSize === talla ? '#FFF' : '#000',
-                        border: '1px solid #000',
-                        '&:hover': {
-                          backgroundColor: '#333',
-                          color: '#FFF',
-                        },
-                      }}
-                    >
-                      {talla}
-                    </Button>
-                  ))
-                ) : (
-                  <Typography variant="body2" color="error" sx={{ mt: 1 }}>
-                    No hay tallas disponibles.
-                  </Typography>
-                )}
-              </Box>
-            </Grid>
-          </Grid>
-        </DialogContent>
-        <DialogActions>
-          <Button
-            onClick={handleAddToCart}
-            variant="contained"
-            sx={{
-              backgroundColor: '#000',
-              color: '#FFF',
-              '&:hover': {
-                backgroundColor: '#333',
-              },
-            }}
-            disabled={!selectedSize}
-          >
-            Añadir al Carrito
-          </Button>
-          <Button
-            onClick={handleClose}
-            variant="contained"
-            sx={{
-              backgroundColor: '#FF5722',
-              color: '#FFF',
-              '&:hover': {
-                backgroundColor: '#E64A19',
-              },
-            }}
-          >
-            Cerrar
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-
-
+      {/* Diálogo del producto */}
+      <ProductDialog
+        open={dialogOpen}
+        onClose={() => setDialogOpen(false)}
+        product={product}
+        onAddToCart={onAddToCart}
+        initialSelectedSize={selectedSize} // Pasar la talla seleccionada al diálogo
+      />
     </>
   );
 };

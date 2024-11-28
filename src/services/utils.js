@@ -22,13 +22,16 @@ export const crearPedidoData = (nombre, telefono, direccion, productos) => {
 export const fetchProducts = async () => {
   try {
     const response = await axios.get(
-      'https://script.google.com/macros/s/AKfycbxkePK0O0Fd_wVM_5A_pacjKPLAMzZWSzZ9w-IeiXDmfSihpMCHpNiKRma-g20Cau1Ilw/exec'
+      'https://script.google.com/macros/s/AKfycbwwiQUiYE9xEcZs0fTEepN6UXJ2MMhEzDe2Xk-VAnpxX9ljAhFu7t9B6Ye5LW0XOH5LqQ/exec'
     );
 
     if (response.data.status === 'success') {
       const productsWithImages = response.data.data.map((product) => ({
         ...product,
-        imagenUrl: product.imagenes[0] || 'ruta_a_imagen_placeholder.jpg',
+        imagenUrl: product.imagenes[0] || 'ruta_a_imagen_placeholder.jpg', // Toma la primera imagen o un placeholder
+        categorias: product.categorias || [], // Asegura que categorías sea un array
+        colores: product.colores || [], // Asegura que colores sea un array
+        descuento: product.descuento || 0, // Si no hay descuento, usa 0
       }));
       return productsWithImages;
     } else {
@@ -40,12 +43,13 @@ export const fetchProducts = async () => {
     return [];
   }
 };
+
   
 // Función para registrar un pedido enviándolo al endpoint de Google Apps Script
 export const registrarPedido = async (pedidoData) => {
   try {
     const response = await fetch(
-      'https://script.google.com/macros/s/AKfycbxkePK0O0Fd_wVM_5A_pacjKPLAMzZWSzZ9w-IeiXDmfSihpMCHpNiKRma-g20Cau1Ilw/exec', 
+      'https://script.google.com/macros/s/AKfycbwwiQUiYE9xEcZs0fTEepN6UXJ2MMhEzDe2Xk-VAnpxX9ljAhFu7t9B6Ye5LW0XOH5LqQ/exec', 
       {
         method: 'POST',
         redirect: 'follow', // Sigue las redirecciones automáticamente
@@ -75,23 +79,35 @@ export const registrarPedido = async (pedidoData) => {
   }
 };
 
-export const addToCart = (cartItems, product, talla) => {
+export const addToCart = (cartItems, product, talla, color) => {
   playSound("/sounds/notificacion.mp3");
-  const productWithSize = { ...product, talla };
+  
+  // Incluir talla y color en el producto
+  const productWithOptions = { ...product, talla, color };
+  
+  // Verificar si ya existe el producto en el carrito con la misma talla y color
   const existingItem = cartItems.find(
-    (item) => item.id === productWithSize.id && item.talla === talla
+    (item) => 
+      item.id === productWithOptions.id &&
+      item.talla === talla &&
+      item.color === color
   );
 
   if (existingItem) {
+    // Incrementar la cantidad si el producto ya existe
     return cartItems.map((item) =>
-      item.id === productWithSize.id && item.talla === talla
+      item.id === productWithOptions.id &&
+      item.talla === talla &&
+      item.color === color
         ? { ...item, quantity: item.quantity + 1 }
         : item
     );
   } else {
-    return [...cartItems, { ...productWithSize, quantity: 1 }];
+    // Agregar un nuevo producto al carrito
+    return [...cartItems, { ...productWithOptions, quantity: 1 }];
   }
 };
+
 
 export const removeFromCart = (cartItems, id, talla) => {
   playSound("/sounds/borrar.mp3")
