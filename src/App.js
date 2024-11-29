@@ -2,8 +2,7 @@ import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Header from "./components/Header";
 import Home from "./pages/Home"; // Home Importado
-import HombresPage from "./pages/HombresPage.js";
-import MujeresPage from "./pages/MujeresPage.js";
+import CategoryPage from "./pages/CategoryPage.js";
 import AccesoriosPage from "./pages/AccesoriosPage.js";
 import Cart from "./components/Cart.js";
 import Footer from "./components/Footer.js";
@@ -109,13 +108,13 @@ function App() {
           <Route
             path="/hombres"
             element={
-              <HombresPage products={getCategoryProducts("Hombre")} onAddToCart={handleAddToCart} />
+              <CategoryPage products={getCategoryProducts("Hombre")} onAddToCart={handleAddToCart} />
             }
           />
           <Route
             path="/mujeres"
             element={
-              <MujeresPage products={getCategoryProducts("Mujer")} onAddToCart={handleAddToCart} />
+              <CategoryPage products={getCategoryProducts("Mujer")} onAddToCart={handleAddToCart} />
             }
           />
           <Route
