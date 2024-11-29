@@ -10,6 +10,7 @@ import WhatsAppButton from "./components/WhatsappButton";
 import OrderTracking from "./pages/OrderTracking";
 import TermsAndConditions from "./pages/TermsAndConditions";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
+import ProductRegistration from "./pages/ProductRegistrationForm.js";
 import FAQ from "./pages/FAQ";
 import { Drawer, Box, Snackbar, Alert, Toolbar, CircularProgress } from "@mui/material";
 import {
@@ -104,6 +105,10 @@ function App() {
           <Route
             path="/"
             element={<Home />} // Reintegramos el Home
+          />
+          <Route
+            path="/admin"
+            element={<ProductRegistration />}
           />
           <Route
             path="/hombres"
