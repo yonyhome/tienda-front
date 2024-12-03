@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Header from "./components/Header";
-import Home from "./pages/Home"; // Home Importado
+import Home from "./pages/Home";
 import CategoryPage from "./pages/CategoryPage.js";
 import AccesoriosPage from "./pages/AccesoriosPage.js";
 import Cart from "./components/Cart.js";
@@ -10,7 +10,8 @@ import WhatsAppButton from "./components/WhatsappButton";
 import OrderTracking from "./pages/OrderTracking";
 import TermsAndConditions from "./pages/TermsAndConditions";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
-import ProductRegistration from "./pages/ProductRegistrationForm.js";
+import ProductRegistration from "./pages/ProductRegistration.js";
+import ProductPage from "./pages/ProductPage.js"; // Importación del ProductPage
 import FAQ from "./pages/FAQ";
 import { Drawer, Box, Snackbar, Alert, Toolbar, CircularProgress } from "@mui/material";
 import {
@@ -81,7 +82,7 @@ function App() {
   const getCategoryProducts = (category) => {
     return products.filter((product) => product.categorias.includes(category));
   };
-  
+
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
@@ -89,7 +90,6 @@ function App() {
       </Box>
     );
   }
-  
 
   return (
     <Router>
@@ -102,14 +102,8 @@ function App() {
       <Toolbar />
       <Box>
         <Routes>
-          <Route
-            path="/"
-            element={<Home />} // Reintegramos el Home
-          />
-          <Route
-            path="/admin"
-            element={<ProductRegistration />}
-          />
+          <Route path="/" element={<Home />} />
+          <Route path="/admin" element={<ProductRegistration />} />
           <Route
             path="/hombres"
             element={
@@ -127,6 +121,15 @@ function App() {
             element={
               <AccesoriosPage
                 products={getCategoryProducts("accesorios")}
+                onAddToCart={handleAddToCart}
+              />
+            }
+          />
+          <Route
+            path="/product/:id"
+            element={
+              <ProductPage
+                products={products}
                 onAddToCart={handleAddToCart}
               />
             }
