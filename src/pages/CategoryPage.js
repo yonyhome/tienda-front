@@ -130,7 +130,7 @@ const CategoryPage = ({ products, onAddToCart }) => {
                 max={categoryFilters.prices[1]}
                 onChange={(e, newValue) => setPriceRange(newValue)}
                 valueLabelDisplay="auto"
-                valueLabelFormatter={(value) => `$${value}`}
+                valuelabelformatter={(value) => `$${value}`}
               />
             </Box>
 

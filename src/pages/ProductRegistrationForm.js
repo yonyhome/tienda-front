@@ -1,41 +1,53 @@
 import React, { useState } from "react";
 import {
   Box,
+  TextField,
   Button,
   Typography,
+  Autocomplete,
   Grid,
+  Chip,
   CircularProgress,
-  IconButton,
-  TextField,
   FormControl,
   InputLabel,
   Select,
   MenuItem,
-  Checkbox,
-  FormControlLabel,
+  IconButton,
 } from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { registrarProducto } from "../services/productUtils"; // Importamos la función desde utils
+import { registrarFoto } from "../services/utils"; // Función para registrar fotos en la API
 
 const ProductRegistration = () => {
   const [productData, setProductData] = useState({
     nombre: "",
-    descripcion: "",
+    descripcion: "",  // Se añadió el campo descripción
     precio: "",
-    categoria: "",
-    tallas: "",
+    categorias: [], 
+    tallas: [],
     colores: [],
     descuento: "",
     disponible: "Sí",
     imagenes: [],
   });
+  const [loadingImages, setLoadingImages] = useState(false);
 
-  const [selectedFiles, setSelectedFiles] = useState([]);
-  const [uploadedImages, setUploadedImages] = useState([]); // Imágenes subidas con URLs
-  const [loading, setLoading] = useState(false);
+  const categoriasPrincipales = ["Hombre", "Mujer", "Accesorios"];
+  const coloresDisponibles = [
+    "Rojo",
+    "Azul",
+    "Verde",
+    "Amarillo",
+    "Rosado",
+    "Lila",
+    "Naranja",
+    "Negro",
+    "Blanco",
+  ];
+  const tallasDisponibles = ["S", "M", "L", "XL", "XXL"];
 
-  // Manejar cambios en el formulario
-  const handleInputChange = (e) => {
+  const manejarCambio = (e) => {
     const { name, value } = e.target;
     setProductData((prevData) => ({
       ...prevData,
@@ -43,293 +55,270 @@ const ProductRegistration = () => {
     }));
   };
 
-  // Manejar selección de colores (checkbox)
-  const handleColorChange = (e) => {
-    const { value, checked } = e.target;
-    setProductData((prevData) => {
-      let newColors = [...prevData.colores];
-      if (checked) {
-        newColors.push(value);
-      } else {
-        newColors = newColors.filter((color) => color !== value);
+  const manejarSeleccionDeImagenes = async (e) => {
+    const files = Array.from(e.target.files);
+    setLoadingImages(true);
+
+    for (const file of files) {
+      try {
+        console.log("Subiendo imagen:", file.name);
+        const url = await registrarFoto(file); // Registramos la foto en el servidor
+        console.log("Imagen subida correctamente. URL:", url);
+
+        setProductData((prevData) => ({
+          ...prevData,
+          imagenes: [...prevData.imagenes, url],
+        }));
+      } catch (error) {
+        console.error("Error al subir la imagen:", error);
+        alert("No se pudo subir una de las imágenes.");
       }
-      return {
-        ...prevData,
-        colores: newColors,
+    }
+
+    setLoadingImages(false);
+  };
+
+  const validarDatosProducto = (data) => {
+    const errores = [];
+  
+    if (!data.nombre || typeof data.nombre !== "string") {
+      errores.push("El nombre del producto es obligatorio y debe ser un string.");
+    }
+  
+    if (!data.descripcion || typeof data.descripcion !== "string") {
+      errores.push("La descripción es obligatoria y debe ser un string.");
+    }
+  
+    if (!data.precio || isNaN(parseFloat(data.precio))) {
+      errores.push("El precio es obligatorio y debe ser un número válido.");
+    }
+  
+    if (!Array.isArray(data.categorias) || data.categorias.length === 0) {
+      errores.push("Las categorías deben ser un array no vacío.");
+    }
+  
+    if (!Array.isArray(data.tallas) || data.tallas.length === 0) {
+      errores.push("Las tallas deben ser un array no vacío.");
+    }
+  
+    if (!Array.isArray(data.colores) || data.colores.length === 0) {
+      errores.push("Los colores deben ser un array no vacío.");
+    }
+  
+    if (!Array.isArray(data.imagenes) || data.imagenes.length === 0) {
+      errores.push("Las imágenes deben ser un array no vacío.");
+    }
+  
+    return errores;
+  };
+  
+  const eliminarImagen = (url) => {
+    console.log("Eliminando imagen:", url);
+    setProductData((prevData) => ({
+      ...prevData,
+      imagenes: prevData.imagenes.filter((imagen) => imagen !== url),
+    }));
+  };
+
+  const manejarRegistro = async (e) => {
+    e.preventDefault();
+  
+    try {
+      // Verificar que las categorías no estén vacías
+      if (!Array.isArray(productData.categorias) || productData.categorias.length === 0) {
+        alert("Las categorías no pueden estar vacías.");
+        return;
+      }
+  
+      const productoDataConFormato = {
+        ...productData,
+        id: Math.floor(Math.random() * 10000), // Generar un ID único
+        categorias: productData.categorias, // No es necesario propagar si ya es un array
+        tallas: Array.isArray(productData.tallas) ? productData.tallas : [],
+        colores: Array.isArray(productData.colores) ? productData.colores : [],
+        imagenes: Array.isArray(productData.imagenes) ? productData.imagenes : [],
       };
+  
+      const errores = validarDatosProducto(productoDataConFormato);
+  
+      if (errores.length > 0) {
+        console.error("Error en la validación de los datos:", productoDataConFormato);
+        alert(`Errores en la validación:\n${errores.join("\n")}`);
+        return;
+      }
+  
+      console.log("Iniciando el registro del producto...");
+      console.log("Datos del producto antes del registro:", productoDataConFormato);
+  
+      const success = await registrarProducto(productoDataConFormato);
+  
+      if (success) {
+        alert("Producto registrado con éxito.");
+        limpiarFormulario();
+      } else {
+        alert("Hubo un error al registrar el producto.");
+        console.log("El registro del producto falló.");
+      }
+    } catch (error) {
+      console.error("Error durante el registro del producto:", error);
+      alert("Hubo un error inesperado al registrar el producto.");
+    }
+  };
+  
+  const limpiarFormulario = () => {
+    setProductData({
+      nombre: "",
+      descripcion: "", // Resetear el campo de descripción
+      precio: "",
+      categorias: [],
+      tallas: [],
+      colores: [],
+      descuento: "",
+      disponible: "Sí",
+      imagenes: [],
     });
   };
 
-  // Manejar selección de archivo
-  const handleFileSelect = (e) => {
-    const files = Array.from(e.target.files);
-    setSelectedFiles((prevFiles) => [...prevFiles, ...files]);
-  };
-
-  // Eliminar imagen seleccionada
-  const handleRemoveImage = (index) => {
-    const newFiles = [...selectedFiles];
-    newFiles.splice(index, 1);
-    setSelectedFiles(newFiles);
-  };
-
-  // Subir imágenes al servidor una a una
-  const handleImageUpload = async () => {
-    if (selectedFiles.length === 0) {
-      alert("No hay imágenes seleccionadas para subir.");
-      return;
-    }
-
-    setLoading(true);
-    try {
-      for (let i = 0; i < selectedFiles.length; i++) {
-        const file = selectedFiles[i];
-        const formData = new FormData();
-        formData.append("images", file);
-
-        const response = await fetch(
-          "https://lucia.uninorte.edu.co/images/api/images",
-          {
-            method: "POST",
-            body: formData,
-          }
-        );
-
-        const data = await response.json();
-        if (data && data.length > 0) {
-          const imageUrl = `https://lucia.uninorte.edu.co/images/uploads/${data[0].filename}`;
-          setUploadedImages((prevImages) => [...prevImages, imageUrl]);
-          alert(`Imagen "${file.name}" subida correctamente.`);
-        } else {
-          alert(`Error al subir la imagen "${file.name}".`);
-        }
-      }
-    } catch (error) {
-      console.error("Error al subir las imágenes:", error);
-      alert("Hubo un error al subir las imágenes. Por favor, inténtalo de nuevo.");
-    }
-    setLoading(false);
-  };
-
-  // Registrar el producto con las imágenes subidas
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    if (uploadedImages.length === 0) {
-      alert("Debes subir al menos una imagen antes de registrar el producto.");
-      return;
-    }
-
-    const payload = {
-      action: "registrarProducto",
-      id: Math.floor(Math.random() * 10000), // Generar ID único
-      ...productData,
-      imagenes: uploadedImages,
-    };
-
-    try {
-      const response = await fetch(
-        "https://script.google.com/macros/s/AKfycbwwiQUiYE9xEcZs0fTEepN6UXJ2MMhEzDe2Xk-VAnpxX9ljAhFu7t9B6Ye5LW0XOH5LqQ/exec",
-        {
-          method: "POST",
-          redirect: "follow", // Permitir redirecciones
-          headers: {
-            "Content-Type": "text/plain;charset=utf-8", // Configuración de cabecera para evitar preflight
-          },
-          body: JSON.stringify(payload),
-        }
-      );
-
-      const responseText = await response.text();
-      console.log("Respuesta en texto:", responseText);
-
-      const parsedResponse = JSON.parse(responseText);
-
-      if (parsedResponse.status === "success") {
-        alert("Producto registrado con éxito.");
-        setProductData({
-          nombre: "",
-          descripcion: "",
-          precio: "",
-          categoria: "",
-          tallas: "",
-          colores: [],
-          descuento: "",
-          disponible: "Sí",
-          imagenes: [],
-        });
-        setUploadedImages([]);
-        setSelectedFiles([]);
-      } else {
-        alert(
-          `Error al registrar el producto: ${
-            parsedResponse.message || "Error desconocido"
-          }`
-        );
-      }
-    } catch (error) {
-      console.error("Error al registrar el producto:", error);
-      alert("Hubo un error al registrar el producto. Por favor, inténtalo de nuevo.");
-    }
-  };
-
   return (
-    <Box sx={{ padding: 4 }}>
+    <Box sx={{ padding: 4, marginTop: '100px', marginBottom: '30px' }}>
       <Typography variant="h4" gutterBottom>
         Registro de Producto
       </Typography>
       <Grid container spacing={3}>
-        {/* Nombre del Producto */}
-        <Grid item xs={12} sm={6}>
+        <Grid item xs={12} md={6}>
           <TextField
-            fullWidth
-            label="Nombre del Producto"
-            variant="outlined"
             name="nombre"
+            label="Nombre del Producto"
+            fullWidth
             value={productData.nombre}
-            onChange={handleInputChange}
+            onChange={manejarCambio}
+            required
           />
         </Grid>
-
-        {/* Descripción del Producto */}
-        <Grid item xs={12}>
+        <Grid item xs={12} md={6}>
           <TextField
+            name="precio"
+            label="Precio"
             fullWidth
-            label="Descripción"
-            variant="outlined"
-            name="descripcion"
+            type="number"
+            value={productData.precio}
+            onChange={manejarCambio}
+            required
+          />
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <TextField
+            name="descuento"
+            label="Descuento (%)"
+            fullWidth
+            type="number"
+            value={productData.descuento}
+            onChange={manejarCambio}
+          />
+        </Grid>
+        
+        <Grid item xs={12} md={6}>
+          <TextField
+            name="descripcion" // Campo de descripción agregado
+            label="Descripción del Producto"
+            fullWidth
             multiline
             rows={4}
             value={productData.descripcion}
-            onChange={handleInputChange}
+            onChange={manejarCambio}
+            required
           />
         </Grid>
 
-        {/* Precio */}
-        <Grid item xs={12} sm={6}>
-          <TextField
-            fullWidth
-            label="Precio"
-            variant="outlined"
-            name="precio"
-            value={productData.precio}
-            onChange={handleInputChange}
-          />
-        </Grid>
-
-        {/* Categoría */}
-        <Grid item xs={12} sm={6}>
+        <Grid item xs={12} md={6}>
           <FormControl fullWidth>
             <InputLabel>Categoría</InputLabel>
             <Select
-              name="categoria"
-              value={productData.categoria}
-              onChange={handleInputChange}
-              label="Categoría"
+              name="categorias" 
+              multiple
+              value={productData.categorias}
+              onChange={(e) =>
+                manejarCambio({
+                  target: { name: "categorias", value: e.target.value },
+                })
+              }
             >
-              <MenuItem value="ropa">Ropa</MenuItem>
-              <MenuItem value="calzado">Calzado</MenuItem>
-              <MenuItem value="accesorios">Accesorios</MenuItem>
+              {categoriasPrincipales.map((cat) => (
+                <MenuItem key={cat} value={cat}>
+                  {cat}
+                </MenuItem>
+              ))}
             </Select>
           </FormControl>
         </Grid>
-
-        {/* Tallas */}
-        <Grid item xs={12} sm={6}>
-          <TextField
-            fullWidth
-            label="Tallas"
-            variant="outlined"
-            name="tallas"
-            value={productData.tallas}
-            onChange={handleInputChange}
-          />
-        </Grid>
-
-        {/* Colores */}
-        <Grid item xs={12}>
-          <Typography variant="body1" gutterBottom>
-            Colores disponibles
-          </Typography>
-          <Grid container spacing={2}>
-            {["Rojo", "Azul", "Verde", "Negro", "Blanco"].map((color) => (
-              <Grid item key={color}>
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      value={color}
-                      checked={productData.colores.includes(color)}
-                      onChange={handleColorChange}
-                    />
-                  }
-                  label={color}
-                />
-              </Grid>
-            ))}
-          </Grid>
-        </Grid>
-
-        {/* Descuento */}
-        <Grid item xs={12} sm={6}>
-          <TextField
-            fullWidth
-            label="Descuento (%)"
-            variant="outlined"
-            name="descuento"
-            value={productData.descuento}
-            onChange={handleInputChange}
-          />
-        </Grid>
-
-        {/* Disponibilidad */}
-        <Grid item xs={12} sm={6}>
+        <Grid item xs={12} md={6}>
           <FormControl fullWidth>
-            <InputLabel>Disponibilidad</InputLabel>
+            <InputLabel>Tallas</InputLabel>
             <Select
-              name="disponible"
-              value={productData.disponible}
-              onChange={handleInputChange}
-              label="Disponibilidad"
+              name="tallas"
+              multiple
+              value={productData.tallas}
+              onChange={(e) =>
+                manejarCambio({
+                  target: { name: "tallas", value: e.target.value },
+                })
+              }
             >
-              <MenuItem value="Sí">Sí</MenuItem>
-              <MenuItem value="No">No</MenuItem>
+              {tallasDisponibles.map((talla) => (
+                <MenuItem key={talla} value={talla}>
+                  {talla}
+                </MenuItem>
+              ))}
             </Select>
           </FormControl>
         </Grid>
-
-        {/* Imágenes */}
+        <Grid item xs={12} md={6}>
+          <Autocomplete
+            multiple
+            freeSolo
+            options={coloresDisponibles}
+            value={productData.colores}
+            onChange={(event, newValue) =>
+              setProductData((prevData) => ({ ...prevData, colores: newValue }))
+            }
+            renderTags={(value, getTagProps) =>
+              value.map((option, index) => (
+                <Chip label={option} {...getTagProps({ index })} />
+              ))
+            }
+            renderInput={(params) => <TextField {...params} label="Colores" />}
+          />
+        </Grid>
         <Grid item xs={12}>
           <Typography variant="h6" gutterBottom>
             Imágenes del Producto
           </Typography>
           <Grid container spacing={2}>
-            {selectedFiles.map((file, index) => (
-              <Grid item key={index} xs={6} sm={4} md={3}>
+            {productData.imagenes.map((imagen, index) => (
+              <Grid item xs={12} sm={6} md={4} key={index}>
                 <Box
+                  component="img"
+                  src={imagen}
+                  alt={`Imagen ${index + 1}`}
                   sx={{
-                    position: "relative",
-                    borderRadius: 2,
+                    width: "100%",
+                    height: "auto",
+                    borderRadius: 1,
                     boxShadow: 2,
-                    overflow: "hidden",
+                  }}
+                />
+                <IconButton
+                  color="error"
+                  onClick={() => eliminarImagen(imagen)}
+                  sx={{
+                    position: "absolute",
+                    top: 0,
+                    right: 0,
+                    zIndex: 1,
                   }}
                 >
-                  <img
-                    src={URL.createObjectURL(file)}
-                    alt="Preview"
-                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                  />
-                  <IconButton
-                    sx={{
-                      position: "absolute",
-                      top: 4,
-                      right: 4,
-                      background: "white",
-                    }}
-                    onClick={() => handleRemoveImage(index)}
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                </Box>
+                  <DeleteIcon />
+                </IconButton>
               </Grid>
             ))}
           </Grid>
@@ -339,40 +328,23 @@ const ProductRegistration = () => {
             sx={{ marginTop: 2 }}
             startIcon={<CloudUploadIcon />}
           >
-            Seleccionar Imágenes
+            {loadingImages ? <CircularProgress size={24} /> : "Subir Imágenes"}
             <input
-              type="file"
               hidden
-              multiple
               accept="image/*"
-              onChange={handleFileSelect}
+              multiple
+              type="file"
+              onChange={manejarSeleccionDeImagenes}
             />
-          </Button>
-          <Button
-            variant="contained"
-            color="primary"
-            sx={{ marginTop: 2, marginLeft: 2 }}
-            onClick={handleImageUpload}
-            disabled={loading}
-            startIcon={loading ? <CircularProgress size={20} /> : <CloudUploadIcon />}
-          >
-            {loading ? "Subiendo..." : "Subir Imágenes"}
-          </Button>
-        </Grid>
-
-        {/* Botón de envío */}
-        <Grid item xs={12}>
-          <Button
-            type="button"
-            variant="contained"
-            color="secondary"
-            fullWidth
-            onClick={handleSubmit}
-          >
-            Registrar Producto
           </Button>
         </Grid>
       </Grid>
+
+      <Box sx={{ marginTop: 3 }}>
+        <Button variant="contained" color="primary" onClick={manejarRegistro}>
+          Registrar Producto
+        </Button>
+      </Box>
     </Box>
   );
 };

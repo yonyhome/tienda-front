@@ -22,7 +22,7 @@ export const crearPedidoData = (nombre, telefono, direccion, productos) => {
 export const fetchProducts = async () => {
   try {
     const response = await axios.get(
-      'https://script.google.com/macros/s/AKfycbwwiQUiYE9xEcZs0fTEepN6UXJ2MMhEzDe2Xk-VAnpxX9ljAhFu7t9B6Ye5LW0XOH5LqQ/exec'
+      'https://script.google.com/macros/s/AKfycbwevgRxyafcH06Cmnm-T1HnUogXbZQikZeWWIkZ1GGMqKVcre_GvrmWA_b5jYzHJf7K/exec'
     );
 
     if (response.data.status === 'success') {
@@ -152,3 +152,31 @@ export const playSound = (soundUrl) => {
     console.error('Error al reproducir el sonido:', error);
   }
 };
+
+export const registrarFoto = async (file) => {
+  const formData = new FormData();
+  formData.append("image", file); // Usar "image" como clave del FormData
+
+  try {
+    const response = await fetch("https://lucia.uninorte.edu.co/images/api/images", {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const errorDetails = await response.json(); // Obtener detalles si el servidor retorna un error en JSON
+      console.error("Error del servidor:", errorDetails);
+      throw new Error(errorDetails.message || "Error al subir la imagen");
+    }
+
+    const responseData = await response.json(); // Se asume que la respuesta incluye una URL
+    return `https://lucia.uninorte.edu.co/images/uploads/${responseData.filename}`;
+  } catch (error) {
+    console.error("Error en registrarFoto:", error);
+    throw error;
+  }
+};
+
+
+
+

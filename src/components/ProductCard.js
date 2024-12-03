@@ -201,7 +201,7 @@ const ProductCard = ({ product, onAddToCart }) => {
                   marginRight: { md: '10px' },
                 }}
               >
-                ${(product.precio / (1 - product.descuento)).toFixed(2)}
+                ${(product.precio / (1 - product.descuento/100)).toFixed(2)}
               </Typography>
             )}
             <Typography
