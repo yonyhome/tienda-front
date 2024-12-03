@@ -5,21 +5,8 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ImageCarousel from "../components/ImageCarousel";
 import SizeSelector from "../components/SizeSelector";
 import ColorSelector from "../components/ColorSelector";
+import COLOR_CODES from "../services/colores.json";
 
-const COLOR_CODES = {
-  rojo: "#FF6961",
-  azul: "#77DDFF",
-  verde: "#77DD77",
-  amarillo: "#FDFD96",
-  rosado: "#FFB6C1",
-  lila: "#C3B1E1",
-  naranja: "#FFB347",
-  negro: "#000000",
-  blanco: "#FFFFFF",
-  gris: "#D3D3D3",
-  marrón: "#8B4513",
-  beige: "#F5F5DC",
-};
 
 const ProductPage = ({ products, onAddToCart }) => {
   const { id } = useParams();
@@ -72,9 +59,7 @@ const ProductPage = ({ products, onAddToCart }) => {
         <IconButton onClick={() => navigate(-1)} sx={{ marginRight: 1 }}>
           <ArrowBackIcon />
         </IconButton>
-        <Typography variant="h5" fontWeight="bold">
-          {product.nombre}
-        </Typography>
+        
       </Box>
 
       <Grid container spacing={4}>
@@ -91,23 +76,9 @@ const ProductPage = ({ products, onAddToCart }) => {
 
         {/* Información del producto */}
         <Grid item xs={12} md={6} sx={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-          {/* Descripción */}
-          <Box>
-            <Typography variant="h6" fontWeight="bold">
-              Descripción
-            </Typography>
-            <Typography variant="body1" sx={{ mt: 1 }}>
-              {descriptionExpanded
-                ? product.descripcion
-                : `${product.descripcion?.slice(0, 100)}...`}
-            </Typography>
-            {product.descripcion?.length > 100 && (
-              <Button onClick={() => setDescriptionExpanded((prev) => !prev)} sx={{ mt: 1 }}>
-                {descriptionExpanded ? "Leer menos" : "Leer más"}
-              </Button>
-            )}
-          </Box>
-
+          <Typography variant="h5" fontWeight="bold">
+            {product.nombre}
+          </Typography>
           {/* Precio */}
           <Box sx={{ display: "flex", flexDirection: "row", alignItems: "center", mb: 1 }}>
             {product.descuento && (
@@ -132,7 +103,7 @@ const ProductPage = ({ products, onAddToCart }) => {
           {/* Selector de tallas */}
           <Box>
             <Typography variant="h6" fontWeight="bold">
-              Selecciona una talla
+              Size
             </Typography>
             <SizeSelector
               sizes={product.tallas}
@@ -144,7 +115,7 @@ const ProductPage = ({ products, onAddToCart }) => {
           {/* Selector de colores */}
           <Box>
             <Typography variant="h6" fontWeight="bold">
-              Selecciona un color
+              Color
             </Typography>
             <Box display="flex" alignItems="center" mt={1}>
               {product.colores?.map((color) => (
@@ -182,6 +153,21 @@ const ProductPage = ({ products, onAddToCart }) => {
           >
             Añadir al Carrito
           </Button>
+          <Divider />
+          {/* Descripción */}
+          <Box>
+            
+            <Typography variant="body1" sx={{ mt: 1 }}>
+              {descriptionExpanded
+                ? product.descripcion
+                : `${product.descripcion?.slice(0, 100)}...`}
+            </Typography>
+            {product.descripcion?.length > 100 && (
+              <Button onClick={() => setDescriptionExpanded((prev) => !prev)} sx={{ mt: 1 }}>
+                {descriptionExpanded ? "Leer menos" : "Leer más"}
+              </Button>
+            )}
+          </Box>
         </Grid>
       </Grid>
     </Box>

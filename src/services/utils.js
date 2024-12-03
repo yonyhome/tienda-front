@@ -153,29 +153,7 @@ export const playSound = (soundUrl) => {
   }
 };
 
-export const registrarFoto = async (file) => {
-  const formData = new FormData();
-  formData.append("image", file); // Usar "image" como clave del FormData
 
-  try {
-    const response = await fetch("https://lucia.uninorte.edu.co/images/api/images", {
-      method: "POST",
-      body: formData,
-    });
-
-    if (!response.ok) {
-      const errorDetails = await response.json(); // Obtener detalles si el servidor retorna un error en JSON
-      console.error("Error del servidor:", errorDetails);
-      throw new Error(errorDetails.message || "Error al subir la imagen");
-    }
-
-    const responseData = await response.json(); // Se asume que la respuesta incluye una URL
-    return `https://lucia.uninorte.edu.co/images/uploads/${responseData.filename}`;
-  } catch (error) {
-    console.error("Error en registrarFoto:", error);
-    throw error;
-  }
-};
 
 
 

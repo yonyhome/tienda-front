@@ -1,21 +1,7 @@
 import React, { useState } from "react";
-import { Card, CardContent, Typography, Box} from "@mui/material";
+import { Card, CardContent, Typography, Box } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-
-const COLOR_CODES = {
-  rojo: "#FF6961",
-  azul: "#77DDFF",
-  verde: "#77DD77",
-  amarillo: "#FDFD96",
-  rosado: "#FFB6C1",
-  lila: "#C3B1E1",
-  naranja: "#FFB347",
-  negro: "#000000",
-  blanco: "#FFFFFF",
-  gris: "#D3D3D3",
-  marrón: "#8B4513",
-  beige: "#F5F5DC",
-};
+import COLOR_CODES from "../services/colores.json"; // Importamos el JSON con los colores
 
 const ProductCard = ({ product }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -91,7 +77,7 @@ const ProductCard = ({ product }) => {
                 marginRight: { md: "10px" },
               }}
             >
-              ${(product.precio / (1 - product.descuento)).toFixed(2)}
+              ${(product.precio / (1 - product.descuento / 100)).toFixed(2)}
             </Typography>
           )}
           <Typography
