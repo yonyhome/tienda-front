@@ -7,7 +7,6 @@ import SizeSelector from "../components/SizeSelector";
 import ColorSelector from "../components/ColorSelector";
 import COLOR_CODES from "../services/colores.json";
 
-
 const ProductPage = ({ products, onAddToCart }) => {
   const { id } = useParams();
   const product = products.find((p) => p.id.toString() === id);
@@ -30,11 +29,11 @@ const ProductPage = ({ products, onAddToCart }) => {
   }, [product.imagenes.length]);
 
   const handleAddToCart = () => {
-    if (selectedSize && selectedColor) {
+    if (selectedSize) {
       const productWithOptions = { ...product, talla: selectedSize, color: selectedColor };
       onAddToCart(productWithOptions, selectedSize, selectedColor);
     } else {
-      alert("Por favor, selecciona una talla y un color antes de añadir al carrito");
+      alert("Por favor, selecciona una talla antes de añadir al carrito");
     }
   };
 
@@ -59,7 +58,6 @@ const ProductPage = ({ products, onAddToCart }) => {
         <IconButton onClick={() => navigate(-1)} sx={{ marginRight: 1 }}>
           <ArrowBackIcon />
         </IconButton>
-        
       </Box>
 
       <Grid container spacing={4}>
@@ -112,31 +110,33 @@ const ProductPage = ({ products, onAddToCart }) => {
             />
           </Box>
 
-          {/* Selector de colores */}
-          <Box>
-            <Typography variant="h6" fontWeight="bold">
-              Color
-            </Typography>
-            <Box display="flex" alignItems="center" mt={1}>
-              {product.colores?.map((color) => (
-                <Box
-                  key={color}
-                  sx={{
-                    width: "20px",
-                    height: "20px",
-                    borderRadius: "50%",
-                    backgroundColor: COLOR_CODES[color] || "gray",
-                    marginRight: "5px",
-                  }}
-                />
-              ))}
+          {/* Selector de colores (solo si existen colores) */}
+          {product.colores?.length > 0 && (
+            <Box>
+              <Typography variant="h6" fontWeight="bold">
+                Color
+              </Typography>
+              <Box display="flex" alignItems="center" mt={1}>
+                {product.colores?.map((color) => (
+                  <Box
+                    key={color}
+                    sx={{
+                      width: "20px",
+                      height: "20px",
+                      borderRadius: "50%",
+                      backgroundColor: COLOR_CODES[color] || "gray",
+                      marginRight: "5px",
+                    }}
+                  />
+                ))}
+              </Box>
+              <ColorSelector
+                colors={product.colores}
+                selectedColor={selectedColor}
+                setSelectedColor={setSelectedColor}
+              />
             </Box>
-            <ColorSelector
-              colors={product.colores}
-              selectedColor={selectedColor}
-              setSelectedColor={setSelectedColor}
-            />
-          </Box>
+          )}
 
           {/* Botón de añadir al carrito */}
           <Button
@@ -149,14 +149,13 @@ const ProductPage = ({ products, onAddToCart }) => {
               padding: "0.75rem 2rem",
               fontSize: "1rem",
             }}
-            disabled={!selectedSize || !selectedColor}
+            disabled={!selectedSize}
           >
             Añadir al Carrito
           </Button>
           <Divider />
           {/* Descripción */}
           <Box>
-            
             <Typography variant="body1" sx={{ mt: 1 }}>
               {descriptionExpanded
                 ? product.descripcion

@@ -3,21 +3,19 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import { CssBaseline } from '@mui/material';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
+import { initGA } from './analytics'; // Importa la función initGA
 
 // Define el tema con la fuente deseada
 const theme = createTheme({
   palette: {
-    primary: {
-      main: '#1976d2',
-    },
-    secondary: {
-      main: '#ff4081',
-    },
+    primary: { main: '#000000' },
+    secondary: { main: '#8a9597' },
   },
-  typography: {
-    fontFamily: 'Helvetica,Helvetica Neue,Arial,Lucida Grande,sans-serif',
-  },
+  typography: { fontFamily: 'Helvetica,Helvetica Neue,Arial,Lucida Grande,sans-serif' },
 });
+
+// Inicializa Google Analytics al cargar la aplicación
+initGA();
 
 // Crea el root usando createRoot
 const root = ReactDOM.createRoot(document.getElementById('root'));

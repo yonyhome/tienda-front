@@ -1,28 +1,32 @@
 import React, { useState, useEffect } from "react";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes, useLocation } from "react-router-dom";
 import Header from "./components/Header";
 import Home from "./pages/Home";
-import CategoryPage from "./pages/CategoryPage.js";
-import AccesoriosPage from "./pages/AccesoriosPage.js";
-import Cart from "./components/Cart.js";
-import Footer from "./components/Footer.js";
+import CategoryPage from "./pages/CategoryPage";
+import AccesoriosPage from "./pages/AccesoriosPage";
+import Cart from "./components/Cart";
+import Footer from "./components/Footer";
 import WhatsAppButton from "./components/WhatsappButton";
 import OrderTracking from "./pages/OrderTracking";
 import TermsAndConditions from "./pages/TermsAndConditions";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
-import ProductRegistration from "./pages/ProductRegistration.js";
-import ProductPage from "./pages/ProductPage.js"; // Importación del ProductPage
+import ProductRegistration from "./pages/ProductRegistration";
+import ProductPage from "./pages/ProductPage"; 
 import FAQ from "./pages/FAQ";
 import { Drawer, Box, Snackbar, Alert, Toolbar, CircularProgress } from "@mui/material";
-import {
-  addToCart,
-  removeFromCart,
-  updateCartQuantity,
-  emptyCart,
-  getTotalItems,
-  playSound,
-  fetchProducts,
-} from "./services/utils";
+import { addToCart, removeFromCart, updateCartQuantity, emptyCart, getTotalItems, playSound, fetchProducts } from "./services/utils";
+import { trackPageView } from "./analytics"; // Importa trackPageView
+
+// Componente para rastrear las vistas de página
+function AnalyticsTracker() {
+  const location = useLocation();
+
+  useEffect(() => {
+    trackPageView(location.pathname); // Rastrear cada cambio de ruta
+  }, [location]);
+
+  return null; // No renderiza nada
+}
 
 function App() {
   const [products, setProducts] = useState([]);
@@ -40,7 +44,6 @@ function App() {
     const loadProducts = async () => {
       setLoading(true);
       const fetchedProducts = await fetchProducts(); // Llamada a la función de carga
-      console.log(fetchedProducts);
       setProducts(fetchedProducts);
       setLoading(false);
     };
@@ -56,7 +59,7 @@ function App() {
     setSnackbar({ ...snackbar, open: false });
   };
 
-  const handleOpenCart = () => setCartOpen(true);
+  
   const handleCloseCart = () => setCartOpen(false);
 
   const handleAddToCart = (product, talla, color) => {
@@ -78,10 +81,10 @@ function App() {
     handleCloseCart();
   };
 
-  // Filtrar productos por categoría
   const getCategoryProducts = (category) => {
     return products.filter((product) => product.categorias.includes(category));
   };
+  const deadline = "2024-12-15T23:59:59";
 
   if (loading) {
     return (
@@ -93,11 +96,16 @@ function App() {
 
   return (
     <Router>
+      <AnalyticsTracker /> {/* Componente para rastrear vistas de página */}
+      
       <Header
-        deadline="2024-12-01T23:59:59"
+        deadline = {deadline}
         cartItems={cartItems}
-        onOpenCart={handleOpenCart}
         getTotalItems={getTotalItems}
+        onRemoveFromCart={handleRemoveFromCart}
+        onUpdateQuantity={handleUpdateQuantity}
+        onEmptyCart={handleEmptyCart}
+        setSnackbar={showSnackbar}
       />
       <Toolbar />
       <Box>
@@ -105,13 +113,13 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/admin" element={<ProductRegistration />} />
           <Route
-            path="/hombres"
+            path="/hombre"
             element={
               <CategoryPage products={getCategoryProducts("Hombre")} onAddToCart={handleAddToCart} />
             }
           />
           <Route
-            path="/mujeres"
+            path="/mujer"
             element={
               <CategoryPage products={getCategoryProducts("Mujer")} onAddToCart={handleAddToCart} />
             }

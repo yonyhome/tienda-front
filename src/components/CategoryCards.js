@@ -6,12 +6,12 @@ const categories = [
   {
     image: '/men.webp', // Reemplaza con las rutas de tus imágenes
     label: 'Hombres',
-    link: '/hombres',
+    link: '/hombre',
   },
   {
     image: '/womens.webp',
     label: 'Mujeres',
-    link: '/mujeres',
+    link: '/mujer',
   },
   {
     image: '/accesorios.jpg',

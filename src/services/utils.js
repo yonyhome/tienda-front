@@ -122,8 +122,13 @@ export const updateCartQuantity = (cartItems, id, talla, increment) => {
   );
 };
 
+// utils.js (o donde tengas definida la función)
 export const getTotalItems = (cartItems) => {
-  return cartItems.reduce((total, item) => total + item.quantity, 0);
+  // Asegúrate de que cartItems no sea undefined o null
+  if (!Array.isArray(cartItems)) {
+    return 0;  // Devuelve 0 si no es un arreglo válido
+  }
+  return cartItems.reduce((total, item) => total + (item.quantity || 0), 0);
 };
 
 export const emptyCart = () => {
