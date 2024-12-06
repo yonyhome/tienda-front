@@ -1,36 +1,57 @@
 import React, { useState } from "react";
-import { TextField, Button, Box, Typography } from "@mui/material";
-import OrderCard from '../components/OrderCard';
+import { TextField, Button, Box, Typography, Alert } from "@mui/material";
+import OrderCard from "../components/OrderCard";
+import { fetchPedidosPorCorreo } from "../services/PedidosUtils";
 
 const OrderTracking = () => {
   const [email, setEmail] = useState("");
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
-  // Simula pedidos obtenidos de una API
-  const fetchOrders = () => {
+  const isValidEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const fetchOrders = async () => {
+    setErrorMessage(""); // Limpia cualquier mensaje previo
+    if (!isValidEmail(email)) {
+      setErrorMessage("Por favor, ingresa un correo electrónico válido.");
+      return;
+    }
+
     setLoading(true);
-    setTimeout(() => {
-      setOrders([
-        { id: 1, status: 2, date: "2024-11-20", address: "cra. 9n, 98b-93" },
-        { id: 2, status: 4, date: "2024-11-22", address: "cra. 9n, 98b-93" },
-      ]);
+    try {
+      const pedidos = await fetchPedidosPorCorreo(email);
+      if (pedidos.length === 0) {
+        setErrorMessage("No hay pedidos asociados a este correo.");
+      } else {
+        setOrders(pedidos);
+      }
+    } catch (error) {
+      console.error("Error al obtener los pedidos:", error.message);
+      setErrorMessage("Hubo un error al obtener los pedidos. Por favor, intenta nuevamente.");
+      setOrders([]);
+    } finally {
       setLoading(false);
-    }, 1500);
+    }
   };
 
   return (
-    <Box sx={{ padding: "2rem", marginTop: "64px", }}> {/* Ajusta el marginTop para evitar que se oculte detrás del AppBar */}
+    <Box sx={{ padding: "2rem", marginTop: "64px" }}>
       <Typography variant="h4" gutterBottom sx={{ textAlign: "center" }}>
         Seguimiento de Pedido
       </Typography>
-      <Box sx={{ display: "flex", justifyContent: "center", marginBottom: "2rem" }}>
+      <Box sx={{ display: "flex", justifyContent: "center", marginBottom: "1rem" }}>
         <TextField
           label="Ingresa tu correo"
           variant="outlined"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           sx={{ width: "60%", marginRight: "1rem" }}
+          error={!!errorMessage}
+          helperText={errorMessage && "Por favor ingresa un correo válido."}
         />
         <Button
           variant="contained"
@@ -42,15 +63,28 @@ const OrderTracking = () => {
         </Button>
       </Box>
 
-      {orders.length === 0 && !loading && (
+      {errorMessage && (
+        <Alert severity="error" sx={{ marginBottom: "1rem", textAlign: "center" }}>
+          {errorMessage}
+        </Alert>
+      )}
+
+      {!loading && orders.length === 0 && !errorMessage && (
         <Typography variant="body1" color="textSecondary" sx={{ textAlign: "center" }}>
           Ingresa tu correo para ver el seguimiento de tus pedidos.
         </Typography>
       )}
 
       <Box>
-        {orders.map((order) => (
-          <OrderCard key={order.id} order={order} />
+        {orders.map((order, index) => (
+          <OrderCard
+            key={index}
+            order={{
+              ...order,
+              name: order.nombre,
+              total: order.total,
+            }}
+          />
         ))}
       </Box>
     </Box>

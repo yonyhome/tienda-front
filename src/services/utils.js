@@ -22,7 +22,7 @@ export const crearPedidoData = (nombre, telefono, direccion, productos) => {
 export const fetchProducts = async () => {
   try {
     const response = await axios.get(
-      'https://script.google.com/macros/s/AKfycbwevgRxyafcH06Cmnm-T1HnUogXbZQikZeWWIkZ1GGMqKVcre_GvrmWA_b5jYzHJf7K/exec'
+      'https://script.google.com/macros/s/AKfycbyPOMnZEUBOXzhT5ibMTgnLdZDtSmMWQc0gBE2keEhlArMAH26UoS4lAjnDx7ce6OR0Rg/exec'
     );
 
     if (response.data.status === 'success') {

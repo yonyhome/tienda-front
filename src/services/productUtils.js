@@ -15,7 +15,7 @@ export const registrarProducto = async (productoData) => {
     try {
       // Cambiar a "text/plain" para evitar problemas de CORS
       const response = await fetch(
-        'https://script.google.com/macros/s/AKfycbwevgRxyafcH06Cmnm-T1HnUogXbZQikZeWWIkZ1GGMqKVcre_GvrmWA_b5jYzHJf7K/exec', 
+        'https://script.google.com/macros/s/AKfycbyPOMnZEUBOXzhT5ibMTgnLdZDtSmMWQc0gBE2keEhlArMAH26UoS4lAjnDx7ce6OR0Rg/exec', 
         {
           method: 'POST',
           redirect: 'follow', // Sigue las redirecciones automáticamente
