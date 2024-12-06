@@ -65,7 +65,12 @@ const Cart = ({ cartItems = [], onRemoveFromCart, onUpdateQuantity, onEmptyCart,
             <ListItem
               key={`${item.id}-${item.talla}`}
               alignItems="flex-start"
-              style={{ display: 'flex', flexDirection: 'row', marginBottom: '10px' }}
+              style={{
+                display: 'flex',
+                flexDirection: 'row',
+                marginBottom: '10px',
+                position: 'relative',
+              }}
             >
               {/* Imagen del producto */}
               <Box
@@ -98,15 +103,15 @@ const Cart = ({ cartItems = [], onRemoveFromCart, onUpdateQuantity, onEmptyCart,
                 >
                   {item.nombre}
                 </Typography>
-                <Typography variant="body2" style={{ marginBottom: '5px' }}>
-                  <strong>Precio:</strong> ${item.precio}
-                </Typography>
-                <Typography variant="body2" style={{ marginBottom: '5px', color: "grey" }}>
+
+                <Typography variant="body2" style={{ marginBottom: '5px', color: 'grey' }}>
                   <strong>Size:</strong> {item.talla || 'No disponible'}
                 </Typography>
-                <Typography variant="body2" style={{ marginBottom: '5px', color: "grey" }}>
-                  <strong>Color:</strong> {item.color || 'No disponible'}
-                </Typography>
+                {item.color && (
+                  <Typography variant="body2" style={{ marginBottom: '5px', color: 'grey' }}>
+                    <strong>Color:</strong> {item.color}
+                  </Typography>
+                )}
 
                 {/* Controles de cantidad */}
                 <Box
@@ -115,42 +120,59 @@ const Cart = ({ cartItems = [], onRemoveFromCart, onUpdateQuantity, onEmptyCart,
                   justifyContent="center"
                   style={{
                     backgroundColor: 'black',
-                    padding: '0px',
                     borderRadius: '4px',
+                    maxWidth: '80px',
+                    height: '32px',
                   }}
                 >
                   <IconButton
                     onClick={() => onUpdateQuantity(item.id, item.talla, -1)}
                     disabled={item.quantity <= 1}
-                    style={{ color: 'white' }}
+                    style={{ color: 'white', padding: '1px' }}
                   >
-                    <Remove />
+                    <Remove style={{ fontSize: '16px' }} />
                   </IconButton>
-                  <Typography variant="body2" style={{ color: 'white' }}>
+                  <Typography
+                    variant="body2"
+                    style={{
+                      color: 'white',
+                      fontSize: '14px',
+                      margin: '0 4px',
+                    }}
+                  >
                     {item.quantity}
                   </Typography>
                   <IconButton
                     onClick={() => onUpdateQuantity(item.id, item.talla, 1)}
-                    style={{ color: 'white' }}
+                    style={{ color: 'white', padding: '1px' }}
                   >
-                    <Add />
+                    <Add style={{ fontSize: '16px' }} />
                   </IconButton>
                 </Box>
-                <IconButton
-                  onClick={() => onRemoveFromCart(item.id, item.talla)}
-                  style={{ color: 'grey' }}
-                >
-                  <DeleteIcon />
-                  <Typography variant="body2">
+
+                {/* Botón para eliminar */}
+                <Box display="flex" justifyContent="flex-start" alignItems="center">
+                  <IconButton onClick={() => onRemoveFromCart(item.id, item.talla)} style={{ color: 'grey' }}>
+                    <DeleteIcon />
+                  </IconButton>
+                  <Typography variant="body2" style={{ color: 'grey' }}>
                     Remover
                   </Typography>
-                </IconButton>
-                
+                </Box>
               </Box>
 
-              {/* Botón para eliminar */}
-              <Box display="flex" alignItems="center" marginLeft={2}>
-                
+              {/* Precio total para las unidades */}
+              <Box
+                style={{
+                  position: 'absolute',
+                  bottom: '10px',
+                  right: '10px',
+                  textAlign: 'right',
+                }}
+              >
+                <Typography variant="body2" style={{ fontSize: '14px', color: 'grey' }}>
+                  ${(item.precio * item.quantity).toFixed(2)}
+                </Typography>
               </Box>
             </ListItem>
           ))
@@ -160,6 +182,12 @@ const Cart = ({ cartItems = [], onRemoveFromCart, onUpdateQuantity, onEmptyCart,
           </Typography>
         )}
       </List>
+
+      {/* Divider después de cada item */}
+      {cartItems.length > 0 && (
+        <Divider sx={{ margin: '10px 0', borderColor: '#ddd' }} />
+      )}
+
 
       {/* Subtotal con fondo gris */}
       {cartItems.length > 0 && (
