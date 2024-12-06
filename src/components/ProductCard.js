@@ -77,7 +77,10 @@ const ProductCard = ({ product }) => {
                 marginRight: { md: "10px" },
               }}
             >
-              ${(product.precio / (1 - product.descuento / 100)).toFixed(2)}
+              {/* Precio con descuento, formateado */}
+              ${Intl.NumberFormat("es-CO").format(
+                Math.round(product.precio / (1 - product.descuento / 100))
+              )}
             </Typography>
           )}
           <Typography
@@ -87,9 +90,11 @@ const ProductCard = ({ product }) => {
               color: "black",
             }}
           >
-            ${product.precio}
+            {/* Precio normal, formateado */}
+            ${Intl.NumberFormat("es-CO").format(Math.round(product.precio))}
           </Typography>
         </Box>
+
 
         {/* Colores disponibles */}
         <Box display="flex" alignItems="center" mt={1}>

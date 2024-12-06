@@ -88,13 +88,18 @@ const ProductPage = ({ products, onAddToCart }) => {
                   marginRight: "10px",
                 }}
               >
-                ${(product.precio / (1 - product.descuento / 100)).toFixed(2)}
+                {/* Precio con descuento, formateado */}
+                ${Intl.NumberFormat("es-CO").format(
+                  Math.round(product.precio / (1 - product.descuento / 100))
+                )}
               </Typography>
             )}
             <Typography sx={{ fontWeight: "bold", fontSize: "18px", color: "black" }}>
-              ${product.precio}
+              {/* Precio normal, formateado */}
+              ${Intl.NumberFormat("es-CO").format(Math.round(product.precio))}
             </Typography>
           </Box>
+
 
           <Divider />
 

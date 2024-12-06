@@ -11,8 +11,9 @@ const theme = createTheme({
     primary: { main: '#000000' },
     secondary: { main: '#8a9597' },
   },
-  typography: { fontFamily: 'Helvetica,Helvetica Neue,Arial,Lucida Grande,sans-serif' },
+  typography: { fontFamily: 'Montserrat, Arial, sans-serif' }, // Cambiar a Montserrat
 });
+
 
 // Inicializa Google Analytics al cargar la aplicación
 initGA();

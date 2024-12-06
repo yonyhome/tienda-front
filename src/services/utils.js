@@ -81,21 +81,19 @@ export const registrarPedido = async (pedidoData) => {
 
 export const addToCart = (cartItems, product, talla, color) => {
   playSound("/sounds/notificacion.mp3");
-  
-  // Incluir talla y color en el producto
+
   const productWithOptions = { ...product, talla, color };
-  
-  // Verificar si ya existe el producto en el carrito con la misma talla y color
+
   const existingItem = cartItems.find(
-    (item) => 
+    (item) =>
       item.id === productWithOptions.id &&
       item.talla === talla &&
       item.color === color
   );
 
+  let updatedCart;
   if (existingItem) {
-    // Incrementar la cantidad si el producto ya existe
-    return cartItems.map((item) =>
+    updatedCart = cartItems.map((item) =>
       item.id === productWithOptions.id &&
       item.talla === talla &&
       item.color === color
@@ -103,24 +101,44 @@ export const addToCart = (cartItems, product, talla, color) => {
         : item
     );
   } else {
-    // Agregar un nuevo producto al carrito
-    return [...cartItems, { ...productWithOptions, quantity: 1 }];
+    updatedCart = [...cartItems, { ...productWithOptions, quantity: 1 }];
   }
+
+  // Guardar el carrito actualizado en localStorage
+  saveCartToLocalStorage(updatedCart);
+
+  return updatedCart;
 };
 
+export const removeFromCart = (cartItems, id, talla, color) => {
+  playSound("/sounds/borrar.mp3");
+  const updatedCart = cartItems.filter(
+    (item) => !(item.id === id && item.talla === talla && item.color === color)
+  );
 
-export const removeFromCart = (cartItems, id, talla) => {
-  playSound("/sounds/borrar.mp3")
-  return cartItems.filter((item) => !(item.id === id && item.talla === talla));
+  // Guardar el carrito actualizado en localStorage
+  saveCartToLocalStorage(updatedCart);
+
+  return updatedCart;
 };
 
-export const updateCartQuantity = (cartItems, id, talla, increment) => {
-  return cartItems.map((item) =>
-    item.id === id && item.talla === talla
+export const updateCartQuantity = (cartItems, id, talla, color, increment) => {
+  const updatedCart = cartItems.map((item) =>
+    item.id === id && item.talla === talla && item.color === color
       ? { ...item, quantity: Math.max(item.quantity + increment, 1) }
       : item
   );
+
+  // Guardar el carrito actualizado en localStorage
+  saveCartToLocalStorage(updatedCart);
+
+  return updatedCart;
 };
+
+
+
+
+
 
 // utils.js (o donde tengas definida la función)
 export const getTotalItems = (cartItems) => {
@@ -156,6 +174,17 @@ export const playSound = (soundUrl) => {
   } catch (error) {
     console.error('Error al reproducir el sonido:', error);
   }
+};
+
+// Guardar el carrito en el localStorage
+export const saveCartToLocalStorage = (cartItems) => {
+  localStorage.setItem('cartItems', JSON.stringify(cartItems));
+};
+
+// Recuperar el carrito desde el localStorage
+export const loadCartFromLocalStorage = () => {
+  const storedCart = localStorage.getItem('cartItems');
+  return storedCart ? JSON.parse(storedCart) : []; // Si no existe, devuelve un arreglo vacío
 };
 
 
