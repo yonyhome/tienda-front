@@ -118,6 +118,8 @@ function App() {
     return products.filter((product) => product.categorias.includes(category));
   };
 
+  const deadline = "2024-12-31T23:59:59"
+
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
@@ -130,6 +132,7 @@ function App() {
     <Router>
       <AnalyticsTracker />
       <Header
+        deadline={deadline}
         cartItems={cartItems}
         getTotalItems={getTotalItems}
         onRemoveFromCart={handleRemoveFromCart}
