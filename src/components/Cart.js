@@ -54,6 +54,7 @@ const Cart = ({ cartItems, onRemoveFromCart, onUpdateQuantity, onEmptyCart, setS
           onEmptyCart={onEmptyCart}
           onCheckout={() => setOpenCheckoutDialog(true)}
           setSnackbar={setSnackbar}
+          setOpenCheckoutDialog = {setOpenCheckoutDialog}
         />
       )}
       <CheckoutDialog

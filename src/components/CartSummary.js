@@ -1,30 +1,46 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Typography, Divider, TextField, Button } from '@mui/material';
+import { applyDiscount } from '../services/utils'; // Importa la función para aplicar el descuento
 
 const CartSummary = ({
   total,
   discountCode,
   setDiscountCode,
   onApplyDiscount, // Función para aplicar el descuento
-  setSnackbar
+  setSnackbar,
+  setOpenCheckoutDialog,
 }) => {
   const [isDiscountApplied, setIsDiscountApplied] = useState(false); // Estado para verificar si ya se aplicó el descuento
+  const [appliedDiscount, setAppliedDiscount] = useState(0); // Estado para almacenar el descuento aplicado
+
+  // Recupera el código de descuento al montar el componente
+  useEffect(() => {
+    const savedDiscountCode = localStorage.getItem('discountCode');
+    if (savedDiscountCode) {
+      setDiscountCode(savedDiscountCode); // Carga el código guardado
+    }
+  }, [setDiscountCode]);
 
   const handleApplyDiscount = () => {
-    if (isDiscountApplied) {
-        setSnackbar("El descuento solo se aplica a compras superiores a $100,000.", "warning");
+    // Validación del descuento
+    const { discount, message, severity } = applyDiscount(discountCode); // Aplica la función de descuento
+    if (discount === 0) {
+      setSnackbar(message, severity); // Si el código es inválido, muestra el mensaje
       return;
     }
 
     if (total <= 100000) {
-        setSnackbar("Este cupón ya fue aplicado", "warning");
-     
+      setSnackbar("El descuento solo se aplica a compras superiores a $100,000.", "warning");
       return;
     }
 
-    // Aplica el descuento
-    onApplyDiscount();
+    // Aplica el descuento y actualiza el subtotal
+    setAppliedDiscount(discount);
     setIsDiscountApplied(true);
+    setSnackbar(message, severity);
+
+    // Guarda el código de descuento en localStorage para persistencia
+    localStorage.setItem('discountCode', discountCode);
   };
 
   return (
@@ -38,7 +54,7 @@ const CartSummary = ({
     >
       {/* Subtotal */}
       <Typography variant="body1" sx={{ fontWeight: 'bold', mb: 1 }}>
-        Subtotal: <span style={{ float: 'right' }}>${total.toLocaleString()}</span>
+        Subtotal: <span style={{ float: 'right' }}>${(total * (1 - appliedDiscount)).toLocaleString()}</span>
       </Typography>
       <Divider sx={{ my: 2 }} />
 
@@ -58,7 +74,7 @@ const CartSummary = ({
         disabled={isDiscountApplied} // Deshabilitar el campo si ya se aplicó un descuento
       />
 
-      {/* Botones */}
+      {/* Botón de aplicar descuento */}
       <Button
         variant="contained"
         color="primary"
@@ -74,9 +90,12 @@ const CartSummary = ({
       >
         {isDiscountApplied ? 'Descuento Aplicado' : 'Aplicar'}
       </Button>
+
+      {/* Botón de ir al checkout */}
       <Button
         variant="contained"
         fullWidth
+        onClick={() => setOpenCheckoutDialog(true)} // Abre el diálogo
         sx={{
           backgroundColor: 'black',
           color: 'white',

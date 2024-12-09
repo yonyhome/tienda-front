@@ -3,7 +3,6 @@ import { BrowserRouter as Router, Route, Routes, useLocation } from "react-route
 import Header from "./components/Header";
 import Home from "./pages/Home";
 import CategoryPage from "./pages/CategoryPage";
-import AccesoriosPage from "./pages/AccesoriosPage";
 import Cart from "./components/Cart";
 import Footer from "./components/Footer";
 import WhatsAppButton from "./components/WhatsappButton";
@@ -135,8 +134,8 @@ function App() {
           <Route
             path="/accesorios"
             element={
-              <AccesoriosPage
-                products={getCategoryProducts("accesorios")}
+              <CategoryPage
+                products={getCategoryProducts("Accesorios")}
                 onAddToCart={handleAddToCart}
               />
             }

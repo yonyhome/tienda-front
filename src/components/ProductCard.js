@@ -14,7 +14,7 @@ const ProductCard = ({ product }) => {
   const handleMouseLeave = () => setCurrentImageIndex(0);
 
   const handleRedirectToProductPage = () => {
-    navigate(`/product/${product.id}`); // Asegúrate de que la ruta de tu aplicación esté configurada correctamente.
+    navigate(`/product/${product.id}`);
   };
 
   return (
@@ -30,7 +30,7 @@ const ProductCard = ({ product }) => {
       }}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      onClick={handleRedirectToProductPage} // Redirige a la página del producto al hacer clic en la tarjeta.
+      onClick={handleRedirectToProductPage}
     >
       {/* Imagen del producto */}
       <Box position="relative">
@@ -43,17 +43,59 @@ const ProductCard = ({ product }) => {
             objectFit: "cover",
           }}
         />
+        {/* Franja negra con las tallas */}
+        <Box
+          sx={{
+            position: "absolute",
+            bottom: 0,
+            width: "100%",
+            backgroundColor: "rgba(0, 0, 0, 0.8)",
+            color: "white",
+            textAlign: "center",
+            padding: "10px 0",
+            display: "flex",
+            justifyContent: "center",
+            flexWrap: "wrap",
+            gap: "10px",
+          }}
+        >
+          {product.tallas?.length > 0 ? (
+            product.tallas.map((talla) => (
+              <Box
+                key={talla}
+                sx={{
+                  backgroundColor: "black",
+                  color: "white",
+                  padding: "3px 10px",
+                  borderRadius: "4px",
+                  border: "1px solid white",
+                  fontSize: "12px",
+                  fontWeight: "bold",
+                  cursor: "pointer",
+                  "&:hover": {
+                    backgroundColor: "#f0f0f0",
+                  },
+                }}
+                onClick={handleRedirectToProductPage}
+              >
+                {talla}
+              </Box>
+            ))
+          ) : (
+            <Typography variant="body2">No hay tallas disponibles</Typography>
+          )}
+        </Box>
       </Box>
 
       {/* Contenido de la tarjeta */}
       <CardContent sx={{ textAlign: "left", padding: "10px" }}>
         {/* Nombre del producto */}
         <Typography
-          variant="h5"
+          variant="h6"
           sx={{
-            fontSize: { xs: "12px", md: "18px" },
             fontWeight: "bold",
             marginBottom: "5px",
+            fontSize: "16px",
           }}
         >
           {product.nombre}
@@ -63,21 +105,20 @@ const ProductCard = ({ product }) => {
         <Box
           sx={{
             display: "flex",
-            flexDirection: { xs: "column", md: "row" },
-            alignItems: { md: "center" },
+            flexDirection: "row",
+            alignItems: "center",
+            gap: "10px",
             marginBottom: "5px",
           }}
         >
           {product.descuento && (
             <Typography
               sx={{
-                fontSize: { xs: "12px", md: "14px" },
                 textDecoration: "line-through",
                 color: "gray",
-                marginRight: { md: "10px" },
+                fontSize: "14px",
               }}
             >
-              {/* Precio con descuento, formateado */}
               ${Intl.NumberFormat("es-CO").format(
                 Math.round(product.precio / (1 - product.descuento / 100))
               )}
@@ -85,16 +126,14 @@ const ProductCard = ({ product }) => {
           )}
           <Typography
             sx={{
-              fontSize: { xs: "14px", md: "16px" },
               fontWeight: "bold",
+              fontSize: "16px",
               color: "black",
             }}
           >
-            {/* Precio normal, formateado */}
             ${Intl.NumberFormat("es-CO").format(Math.round(product.precio))}
           </Typography>
         </Box>
-
 
         {/* Colores disponibles */}
         <Box display="flex" alignItems="center" mt={1}>

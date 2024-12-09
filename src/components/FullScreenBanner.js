@@ -12,7 +12,7 @@ const FullScreenBanner = () => {
         height: "100vh", // Ocupa todo el alto de la pantalla
         backgroundImage: `url(${
           isSmallScreen
-            ? "/BLACK_FRIDAY_BANNER2.png" // Imagen para pantallas pequeñas
+            ? "/banner2.gif" // Imagen para pantallas pequeñas
             : "/BLACK_FRIDAY_BANNER.png" // Imagen para pantallas grandes
         })`,
         backgroundSize: "cover", // Asegura que la imagen cubra todo el espacio
