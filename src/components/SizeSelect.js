@@ -4,7 +4,7 @@ import { Autocomplete, TextField, Chip } from "@mui/material";
 const SizeSelect = ({ tallas, onChange }) => {
   const tallasDisponibles = [
     "XS", "S", "M", "L", "XL", "XXL", "UNICA", 
-    "S-M", "M-L", "2-4", "6-8", "10-12", 
+    "S-M", "M-L", "L-XL", "2-4", "6-8", "10-12", 
     "14-16", "28", "30", "32", "34", "36", "38"
   ];
 

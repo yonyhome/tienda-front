@@ -2,7 +2,7 @@ import React from "react";
 import { FormControl, InputLabel, Select, MenuItem } from "@mui/material";
 
 const CategorySelect = ({ categorias, onChange }) => {
-  const categoriasPrincipales = ["Hombre", "Mujer", "Accesorios", "Camisetas", "Pantalones","Algodón", "Camisas", "Niño", "Pijamas", "Jeans"];
+  const categoriasPrincipales = ["Hombre", "Mujer", "Accesorios", "Camisetas", "Pantalones","Algodón", "Camisas", "Niño", "Pijamas", "Jeans", "Vestidos"];
   
   return (
     <FormControl fullWidth>
